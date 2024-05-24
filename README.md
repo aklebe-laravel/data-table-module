@@ -1,14 +1,14 @@
 ## DataTable
 
-A module for [Mercy Scaffold Application](https://github.com/AKlebe/MercyScaffold.git)
-(or any based on it like [Jumble Sale](https://github.com/AKlebe/JumbleSale.git)).
+A module for [Mercy Scaffold Application](https://github.com/AKlebeLaravel/MercyScaffold.git)
+(or any based on it like [Jumble Sale](https://github.com/AKlebeLaravel/JumbleSale.git)).
 
 This module will provide frontend data tables with the following features
 
 1) easy configuration of datatables for any model
 3) can list any model and their relations
 4) default and customize sort and filter
-4) most benefit if used together with [Form-Module](https://github.com/AKlebe/FormModule.git)
+4) most benefit if used together with [Form-Module](https://github.com/AKlebeLaravel/FormModule.git)
 
 ### Console
 
