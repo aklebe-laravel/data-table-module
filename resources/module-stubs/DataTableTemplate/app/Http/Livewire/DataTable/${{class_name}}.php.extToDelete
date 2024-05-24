@@ -1,0 +1,93 @@
+<?php
+
+namespace Modules\${{module_name}}\app\Http\Livewire\DataTable;
+
+use Modules\DataTable\app\Http\Livewire\DataTable\Base\BaseDataTable;
+
+class ${{class_name}} extends BaseDataTable
+{
+    /**
+     * Minimum restrictions to allow this component.
+     */
+    public const aclResources = []; // [AclResource::RES_STAFF];
+
+    /**
+     * Minimum restrictions to allow this component.
+     */
+    public string $description = 'DataTable of ${{class_name}}';
+
+    /**
+     * Overwrite to init your sort orders before session exists
+     * @return void
+     */
+    protected function initSort(): void
+    {
+        $this->setSortAllCollections('updated_at', 'desc');
+    }
+
+    /**
+     * @return array|array[]
+     */
+    public function getColumns(): array
+    {
+        return [
+            [
+                'name'       => 'id',
+                'label'      => __('ID'),
+                'searchable' => true,
+                'sortable'   => true,
+                'format'     => 'number',
+                'css_all'    => 'hide-mobile-show-lg text-muted font-monospace text-end w-5',
+            ],
+            [
+                'name'     => 'is_enabled',
+                'label'    => __('Enabled'),
+                'view'     => 'data-table::livewire.js-dt.tables.columns.bool-red-green',
+                'css_all'  => 'hide-mobile-show-lg text-center w-5',
+                'sortable' => true,
+                'icon'     => 'check',
+            ],
+            [
+                'name'       => 'name',
+                'label'      => __('Name'),
+                'searchable' => true,
+                'sortable'   => true,
+                'options'    => [
+                    'has_open_link' => $this->canEdit(),
+                    'str_limit'     => 30,
+                ],
+                'css_all'    => '',
+                'icon'       => 'tag',
+            ],
+            [
+                'name'       => 'updated_at',
+                'label'      => __('Updated At'),
+                'searchable' => true,
+                'sortable'   => true,
+                'view'       => 'data-table::livewire.js-dt.tables.columns.datetime-since',
+                'css_all'    => 'hide-mobile-show-lg ',
+                'icon'       => 'arrow-clockwise',
+            ],
+        ];
+    }
+
+    /**
+     * @param $item
+     * @return bool
+     */
+    protected function isItemValid($item): bool
+    {
+        /** @var \Modules\${{module_name}}\app\Models\${{class_name}} $item */
+        return true;
+    }
+
+    /**
+     * @param $item
+     * @return bool
+     */
+    protected function isItemWarn($item): bool
+    {
+        /** @var \Modules\${{module_name}}\app\Models\${{class_name}} $item */
+        return false;
+    }
+}

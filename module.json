@@ -1,0 +1,11 @@
+{
+    "name": "DataTable",
+    "alias": "data-table",
+    "description": "",
+    "keywords": [],
+    "priority": 1200,
+    "providers": [
+        "Modules\\DataTable\\app\\Providers\\DataTableServiceProvider"
+    ],
+    "files": []
+}
