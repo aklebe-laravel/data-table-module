@@ -430,7 +430,7 @@ class BaseDataTable extends BaseComponent
                     return $parentModel->user->id;
                 }
                 if ($parentModel instanceof User) {
-                    $parentModel->getKey();
+                    return $parentModel->getKey();
                 }
             }
         }
