@@ -1,7 +1,9 @@
 @php
     /** @var \Modules\DataTable\app\Http\Livewire\DataTable\Base\BaseDataTable $this */
+    $dtAutoKey = 'dt-auto-'.$this->getModelName();
+    $dtAutoCounter = app('system_base')->addUniqueCounter($dtAutoKey);
 @endphp
-<div class="data-table-2t-default">
+<div class="data-table-2t-default {{ $dtAutoKey.'-'.$dtAutoCounter }}">
 
     @include('data-table::inc.messages')
 
