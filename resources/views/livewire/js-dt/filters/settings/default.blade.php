@@ -19,6 +19,15 @@
             </li>
         @endif
         <li>
+            <select class="dropdown-toggle form-control">
+                <option value="">{{ __('Select ...') }}</option>
+                <option value="toggle">{{ __('Toggle Visible Items') }}</option>
+                <option value="export">{{ __('Export ...') }}</option>
+                <option value="import" wire:click="$dispatchTo('{{ $this->relatedLivewireImportForm }}', 'open-form', {id: 0})">{{ __('Import ...') }}</option>
+                <option value="print">{{ __('Print ...') }}</option>
+            </select>
+        </li>
+        <li>
             <button class="dropdown-item button-reset-all-filters"
                     wire:click="$dispatchTo('{{ $this->getName() }}', 'reset-filters')">
                 {{ __('Reset all Filters') }}

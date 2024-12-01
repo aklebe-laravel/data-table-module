@@ -169,6 +169,22 @@ class BaseDataTable extends BaseComponent
      * @var string
      */
     public string $relatedLivewireForm = '';
+    public string $relatedLivewireImportForm = '';
+
+    const declaredFilters = [
+        'page'          => 1,
+        'rows'          => 20,
+        'search'        => '',
+        'sort'          => [],
+        'rows_per_page' => [
+            10,
+            20,
+            50,
+            100,
+            200,
+            500,
+        ],
+    ];
 
     /**
      * Filter data root indexed by collection name
@@ -176,47 +192,9 @@ class BaseDataTable extends BaseComponent
      * @var array
      */
     public array $filtersDefaults = [
-        self::COLLECTION_NAME_DEFAULT          => [
-            'page'          => 1,
-            'rows'          => 20,
-            'search'        => '',
-            'sort'          => [],
-            'rows_per_page' => [
-                10,
-                20,
-                50,
-                100,
-                200,
-                500
-            ],
-        ],
-        self::COLLECTION_NAME_SELECTED_ITEMS   => [
-            'page'          => 1,
-            'rows'          => 20,
-            'search'        => '',
-            'sort'          => [],
-            'rows_per_page' => [
-                2,
-                5,
-                10,
-                20,
-                50
-            ],
-        ],
-        self::COLLECTION_NAME_UNSELECTED_ITEMS => [
-            'page'          => 1,
-            'rows'          => 20,
-            'search'        => '',
-            'sort'          => [],
-            'rows_per_page' => [
-                10,
-                20,
-                50,
-                100,
-                200,
-                500
-            ],
-        ],
+        self::COLLECTION_NAME_DEFAULT          => self::declaredFilters,
+        self::COLLECTION_NAME_SELECTED_ITEMS   => self::declaredFilters, // initialized in initMount() ...
+        self::COLLECTION_NAME_UNSELECTED_ITEMS => self::declaredFilters,
     ];
 
     /**
@@ -338,7 +316,7 @@ class BaseDataTable extends BaseComponent
      * @var array|string[]
      */
     protected array $mobileCssClasses = [
-        'button' => 'm-0 ms-1 m-md-1 p-0 p-sm-1 p-md-2'
+        'button' => 'm-0 ms-1 m-md-1 p-0 p-sm-1 p-md-2',
     ];
 
     /**
@@ -350,6 +328,18 @@ class BaseDataTable extends BaseComponent
     protected function initMount(): void
     {
         parent::initMount();
+
+        // adjust some ...
+        $this->filtersDefaults[self::COLLECTION_NAME_SELECTED_ITEMS] = array_merge(self::declaredFilters, [
+            'rows_per_page' => [
+                2,
+                5,
+                10,
+                20,
+                50,
+            ],
+        ]);
+
         $this->getFiltersSession();
     }
 
@@ -377,11 +367,13 @@ class BaseDataTable extends BaseComponent
     {
         if ($v = Session::get($this->getFiltersSessionName())) {
             $this->filters = app('system_base')->arrayMergeRecursiveDistinct($this->filters, $v);
+
             return true;
         }
 
         $this->filters = $this->filtersDefaults;
         $this->initSort();
+
         return false;
     }
 
@@ -404,6 +396,7 @@ class BaseDataTable extends BaseComponent
     /**
      * @param  string  $collectionName
      * @param  string  $keyPath
+     *
      * @return bool
      */
     public function isFilterDefault(string $collectionName, string $keyPath): bool
@@ -420,9 +413,13 @@ class BaseDataTable extends BaseComponent
      */
     public function getUserId(): int|string|null
     {
-        if (($parentModelId = data_get($this->parentData, 'id', '')) && ($parentModelName = data_get($this->parentData,
-                'model_class', ''))) {
-            if ($parentModel = $parentModelName::with([])->find($parentModelId)) {
+        if (($parentModelId = data_get($this->parentData, 'id', ''))
+            && ($parentModelName = data_get($this->parentData,
+                'model_class', ''))
+        ) {
+            if ($parentModel = $parentModelName::with([])
+                                               ->find($parentModelId)
+            ) {
                 if ($parentModel->user_id ?? null) {
                     return $parentModel->user_id;
                 }
@@ -450,7 +447,9 @@ class BaseDataTable extends BaseComponent
             return Auth::user();
         } else {
             // @todo: cache or component public property
-            return app(User::class)->with([])->find($id);
+            return app(User::class)
+                ->with([])
+                ->find($id);
         }
     }
 
@@ -626,6 +625,7 @@ class BaseDataTable extends BaseComponent
     /**
      * @param  string  $prefix
      * @param  string  $suffix
+     *
      * @return string
      */
     protected function getCacheKey(string $prefix = '', string $suffix = ''): string
@@ -643,6 +643,7 @@ class BaseDataTable extends BaseComponent
         //        return Cache::driver('array')->...
         $ttlDefault = config('system-base.cache.default_ttl', 1);
         $ttl = config('system-base.cache.object.signature.ttl', $ttlDefault);
+
         return Cache::remember($this->getCacheKey(suffix: 'base_builder'), $ttl, function () {
             if ((!$moduleClass = app('system_base')->findModuleClass($this->getModelName()))) {
                 throw new Exception(sprintf("Model not found %s", $this->getModelName()));
@@ -669,6 +670,7 @@ class BaseDataTable extends BaseComponent
 
         /** @var Builder $builder */
         $builder = app($moduleClass)->with($this->objectRelations);
+
         return $builder;
     }
 
@@ -737,6 +739,7 @@ class BaseDataTable extends BaseComponent
      *
      * @param  string  $collectionName
      * @param  Builder|Collection  $builder
+     *
      * @return void
      */
     protected function addSearchToCollectionOrBuilder(string $collectionName, Builder|Collection &$builder): void
@@ -792,6 +795,7 @@ class BaseDataTable extends BaseComponent
     /**
      * @param  string  $collectionName
      * @param  Builder|Collection  $builder
+     *
      * @return void
      */
     protected function addPaginationToCollectionOrBuilder(string $collectionName, Builder|Collection &$builder): void
@@ -803,6 +807,7 @@ class BaseDataTable extends BaseComponent
      *
      * @param  string  $collectionName
      * @param  Builder|Collection  $builder
+     *
      * @return void
      */
     protected function addSortToCollectionOrBuilder(string $collectionName, Builder|Collection &$builder): void
@@ -819,6 +824,7 @@ class BaseDataTable extends BaseComponent
                     $builder = $builder->sort(function ($a, $b) use ($sortColumn, $sortDirection) {
                         $a1 = data_get($a, $sortColumn);
                         $b1 = data_get($b, $sortColumn);
+
                         return ($sortDirection === 'desc') ? ($a1 < $b1) : ($a1 > $b1);
                     });
                 }
@@ -890,7 +896,7 @@ class BaseDataTable extends BaseComponent
             Log::error('$index issue. Trys overrun.', [
                 __METHOD__,
                 $trys,
-                $index
+                $index,
             ]);
             $index = 1;
         }
@@ -982,6 +988,7 @@ class BaseDataTable extends BaseComponent
         }
 
         $builder = $this->getBuilder($collectionName);
+
         return $builder->count();
     }
 
@@ -997,7 +1004,8 @@ class BaseDataTable extends BaseComponent
         if (($fix = $this->getFixCollection($collectionName)) !== null) {
             $this->collections[$collectionName] = $fix;
         } else {
-            $this->collections[$collectionName] = $this->getBuilderWithPagination($collectionName)->get();
+            $this->collections[$collectionName] = $this->getBuilderWithPagination($collectionName)
+                                                       ->get();
         }
 
         /**
@@ -1020,6 +1028,7 @@ class BaseDataTable extends BaseComponent
 
     /**
      * @param  string  $collectionName
+     *
      * @return \Illuminate\Support\Collection|null
      */
     public function getFixCollection(string $collectionName): ?\Illuminate\Support\Collection
@@ -1086,7 +1095,8 @@ class BaseDataTable extends BaseComponent
     public function closeForm(): void
     {
         if ($form = $this->getComponentFormName()) {
-            $this->dispatch('close-form')->to($form);
+            $this->dispatch('close-form')
+                 ->to($form);
         }
     }
 
@@ -1104,13 +1114,16 @@ class BaseDataTable extends BaseComponent
             return false;
         }
 
-        return !!$this->getBaseBuilder(self::COLLECTION_NAME_DEFAULT)->whereKey($itemId)->delete();
+        return !!$this->getBaseBuilder(self::COLLECTION_NAME_DEFAULT)
+                      ->whereKey($itemId)
+                      ->delete();
     }
 
     /**
      * @param  mixed  $livewireId
      * @param  mixed  $itemId
      * @param  bool  $simulate
+     *
      * @return bool
      */
     #[On('launch-item')]
@@ -1163,6 +1176,7 @@ class BaseDataTable extends BaseComponent
     /**
      * @param  string  $column
      * @param  string  $collectionName
+     *
      * @return void
      */
     #[On('toggle-sort')]
@@ -1198,6 +1212,7 @@ class BaseDataTable extends BaseComponent
      *
      * @param $value
      * @param $key
+     *
      * @return void
      */
     public function updatedFilters($value, $key): void
@@ -1227,6 +1242,7 @@ class BaseDataTable extends BaseComponent
     protected function hasSort(string $column, string $direction, string $collectionName): bool
     {
         $column = $this->replaceDot($column);
+
         return (Arr::get($this->filters, $collectionName.'.sort.'.$column) === $direction);
     }
 
@@ -1238,6 +1254,7 @@ class BaseDataTable extends BaseComponent
      * @param  string  $subject
      * @param  bool  $replaceBack
      * @param  string  $replaceTo
+     *
      * @return string
      */
     protected function replaceDot(string $subject, bool $replaceBack = false, string $replaceTo = '_[[<|#|>]]_'): string
@@ -1245,6 +1262,7 @@ class BaseDataTable extends BaseComponent
         if ($replaceBack) {
             return str_replace($replaceTo, '.', $subject);
         }
+
         return str_replace('.', $replaceTo, $subject);
     }
 
@@ -1253,6 +1271,7 @@ class BaseDataTable extends BaseComponent
      *
      * @param  string  $column
      * @param  string  $direction
+     *
      * @return void
      */
     public function setSortAllCollections(string $column, string $direction): void
@@ -1274,6 +1293,7 @@ class BaseDataTable extends BaseComponent
 
     /**
      * @param $item
+     *
      * @return bool
      */
     protected function isItemValid($item): bool
@@ -1283,6 +1303,7 @@ class BaseDataTable extends BaseComponent
 
     /**
      * @param $item
+     *
      * @return bool
      */
     protected function isItemWarn($item): bool
@@ -1292,6 +1313,7 @@ class BaseDataTable extends BaseComponent
 
     /**
      * @param $column
+     *
      * @return string
      */
     public function renderIcon($column): string
