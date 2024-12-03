@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Str;
 use Livewire\Attributes\On;
 use Modules\Acl\app\Models\AclResource;
 use Modules\Acl\app\Services\UserService;
@@ -173,43 +174,10 @@ class BaseDataTable extends BaseComponent
 
     const declaredFilters = [
         'page'          => 1,
-        'rows'          => 20,
+        'rows_per_page' => 20,
         'search'        => '',
         'sort'          => [],
-        'rows_per_page' => [
-            10,
-            20,
-            50,
-            100,
-            200,
-            500,
-        ],
     ];
-
-    /**
-     * Filter data root indexed by collection name
-     *
-     * @var array
-     */
-    public array $filtersDefaults = [
-        self::COLLECTION_NAME_DEFAULT          => self::declaredFilters,
-        self::COLLECTION_NAME_SELECTED_ITEMS   => self::declaredFilters, // initialized in initMount() ...
-        self::COLLECTION_NAME_UNSELECTED_ITEMS => self::declaredFilters,
-    ];
-
-    /**
-     * When changed/updated this filter vars, some resets will be made like page reset to 1
-     *
-     * @var array
-     */
-    protected array $filterSoftResetActivators = ['search', 'rows'];
-
-    /**
-     * Filter data root indexed by collection name
-     *
-     * @var array
-     */
-    public array $filters = [];
 
     /**
      * Can be overwritten and should if class names differ.
@@ -238,25 +206,28 @@ class BaseDataTable extends BaseComponent
     public string $headerView = 'data-table::livewire.js-dt.tables.headers.default';
 
     /**
+     *
      * @var array|array[]
      */
-    protected array $filterConfig = [
-        [
-            'css_group' => 'col-12 col-md-3 text-start',
-            'css_item'  => '',
-            'view'      => 'data-table::livewire.js-dt.filters.rows-per-page.default',
-        ],
-        [
-            'css_group' => 'col-12 col-md text-end',
-            'css_item'  => '',
-            'view'      => 'data-table::livewire.js-dt.filters.search.default',
-        ],
-        [
-            'css_group' => 'col-12 col-md-1 text-end',
-            'css_item'  => '',
-            'view'      => 'data-table::livewire.js-dt.filters.settings.default',
-        ],
+    protected array $filterElementConfig = [];
+
+    /**
+     * Filter data root indexed by collection name
+     *
+     * @var array
+     */
+    public array $filterValueDefaults = [
+        self::COLLECTION_NAME_DEFAULT          => self::declaredFilters,
+        self::COLLECTION_NAME_SELECTED_ITEMS   => self::declaredFilters, // initialized in initMount() ...
+        self::COLLECTION_NAME_UNSELECTED_ITEMS => self::declaredFilters,
     ];
+
+    /**
+     * Filter data root indexed by collection name
+     *
+     * @var array
+     */
+    public array $filters = [];
 
     /**
      * Leave empty to hide the footer.
@@ -329,18 +300,17 @@ class BaseDataTable extends BaseComponent
     {
         parent::initMount();
 
-        // adjust some ...
-        $this->filtersDefaults[self::COLLECTION_NAME_SELECTED_ITEMS] = array_merge(self::declaredFilters, [
-            'rows_per_page' => [
-                2,
-                5,
-                10,
-                20,
-                50,
-            ],
-        ]);
-
         $this->getFiltersSession();
+    }
+
+    /**
+     * Runs on every request, after the component is mounted or hydrated, but before any update methods are called
+     *
+     * @return void
+     */
+    protected function initBooted(): void
+    {
+        $this->initFilters();
     }
 
     /**
@@ -350,6 +320,106 @@ class BaseDataTable extends BaseComponent
     protected function initSort(): void
     {
         // $this->setSortAllCollections('updated_at', 'desc');
+    }
+
+    /**
+     * @return void
+     */
+    protected function initFilters(): void
+    {
+        $this->filterElementConfig = [];
+
+        $this->addFilterElement('rows_per_page', [
+            'label'      => 'Rows',
+            'default'    => 10,
+            'position'   => 1000,
+            'soft_reset' => true,
+            'css_group'  => 'col-12 col-md-3 text-start',
+            'css_item'   => '',
+            'options'    => [
+                10  => 10,
+                20  => 20,
+                50  => 50,
+                100 => 100,
+                200 => 200,
+                500 => 500,
+            ],
+            'builder'    => null, // rows_per_page evaluated in main process
+            'view'       => 'data-table::livewire.js-dt.filters.default-elements.select',
+        ]);
+        $this->addFilterElement('search',
+            [
+                'label'      => 'Search ...',
+                'default'    => '',
+                'position'   => 2000,
+                'soft_reset' => true,
+                'css_group'  => 'col-12 col-md text-end',
+                'css_item'   => '',
+                'builder'    => function (Builder $builder, string $filterElementKey, string $filterValue) {
+                    if (!$filterValue) {
+                        return;
+                    }
+                    $searchLike = '%'.$filterValue.'%';
+                    $builder->where(function (Builder $b) use ($searchLike) {
+                        foreach ($this->getAllColumns() as $column) {
+                            if ($columnName = data_get($column, 'name')) {
+                                if (data_get($column, 'searchable', true)) {
+                                    // No matter it's visible or not!
+
+                                    $dotParts = explode('.', $columnName);
+                                    if (count($dotParts) > 1) {
+                                        if (count($dotParts) === 2) {
+                                            $b->orWhereHas($dotParts[0],
+                                                function (Builder $b2) use ($dotParts, $searchLike) {
+                                                    $b2->where($dotParts[1], 'like', $searchLike);
+                                                });
+                                        } // @todo: else more complex, resolve it later ...
+                                    } else {
+                                        $b->orWhere($columnName, 'like', $searchLike);
+                                    }
+
+                                } else {
+                                    // Log::warning('Searching in relations not implemented yet.', [
+                                    //     $columnName,
+                                    //     __METHOD__
+                                    // ]);
+                                }
+                            }
+                        }
+                    });
+                },
+                'view'       => 'data-table::livewire.js-dt.filters.default-elements.text',
+            ]);
+        $this->addFilterElement('actions',
+            [
+                'label'     => 'Actions',
+                'position'  => 9000,
+                'css_group' => 'col-12 col-md-1 text-end',
+                'css_item'  => '',
+                'view'      => 'data-table::livewire.js-dt.filters.settings.default',
+            ]);
+    }
+
+    /**
+     * @param  string  $name
+     * @param  array  $data
+     *
+     * @return void
+     */
+    protected function addFilterElement(string $name, array $data): void
+    {
+        $this->filterElementConfig[$name] = $data;
+        $this->filterElementConfig[$name]['name'] = $name;
+    }
+
+    /**
+     * @return array
+     */
+    protected function getOrderedFilterElementConfig(): array
+    {
+        return collect($this->filterElementConfig)
+            ->sortBy('position')
+            ->toArray();
     }
 
     /**
@@ -371,7 +441,7 @@ class BaseDataTable extends BaseComponent
             return true;
         }
 
-        $this->filters = $this->filtersDefaults;
+        $this->filters = $this->filterValueDefaults;
         $this->initSort();
 
         return false;
@@ -401,7 +471,7 @@ class BaseDataTable extends BaseComponent
      */
     public function isFilterDefault(string $collectionName, string $keyPath): bool
     {
-        return (data_get($this->filters, $collectionName.'.'.$keyPath) === data_get($this->filtersDefaults,
+        return (data_get($this->filters, $collectionName.'.'.$keyPath) === data_get($this->filterValueDefaults,
                 $collectionName.'.'.$keyPath));
     }
 
@@ -717,12 +787,12 @@ class BaseDataTable extends BaseComponent
             /**
              * Add external filters
              */
-            $this->addCustomFilters($builder, $collectionName);
+            $this->extendBuilderByFilters($builder, $collectionName);
 
             /**
              * Add search filter
              */
-            $this->addSearchToCollectionOrBuilder($collectionName, $builder);
+            //$this->addSearchToCollectionOrBuilder($collectionName, $builder);
 
             // sorting / order by
             $this->addSortToCollectionOrBuilder($collectionName, $builder);
@@ -732,64 +802,6 @@ class BaseDataTable extends BaseComponent
         }
 
         return null;
-    }
-
-    /**
-     * Add filter by search
-     *
-     * @param  string  $collectionName
-     * @param  Builder|Collection  $builder
-     *
-     * @return void
-     */
-    protected function addSearchToCollectionOrBuilder(string $collectionName, Builder|Collection &$builder): void
-    {
-        if ($search = data_get($this->filters, $collectionName.'.search')) {
-            $searchLike = '%'.$search.'%';
-            if ($builder instanceof Builder) {
-                /** @var Builder $builder */
-                $builder->where(function (Builder $b) use ($searchLike) {
-                    foreach ($this->getAllColumns() as $column) {
-                        if ($columnName = data_get($column, 'name')) {
-                            if (data_get($column, 'searchable', true)) {
-                                // No matter it's visible or not!
-
-                                $dotParts = explode('.', $columnName);
-                                if (count($dotParts) > 1) {
-                                    if (count($dotParts) === 2) {
-                                        $b->orWhereHas($dotParts[0],
-                                            function (Builder $b2) use ($dotParts, $searchLike) {
-                                                $b2->where($dotParts[1], 'like', $searchLike);
-                                            });
-                                    } // @todo: else more complex, resolve it later ...
-                                } else {
-                                    $b->orWhere($columnName, 'like', $searchLike);
-                                }
-
-                            } else {
-                                // Log::warning('Searching in relations not implemented yet.', [
-                                //     $columnName,
-                                //     __METHOD__
-                                // ]);
-                            }
-                        }
-                    }
-                });
-            } else {
-                // @todo: search for collections
-                // /** @var Collection $builder */
-                // foreach ($this->getAllColumns() as $column) {
-                //     if ($columnName = data_get($column, 'name')) {
-                //         if (data_get($column, 'searchable', true)) {
-                //             // No matter it's visible or not!
-                //             if (!$builder->where($columnName, 'not like', $searchLike)->first()) {
-                //                 $builder->forget();
-                //             }
-                //         }
-                //     }
-                // }
-            }
-        }
     }
 
     /**
@@ -833,15 +845,17 @@ class BaseDataTable extends BaseComponent
     }
 
     /**
-     * Overwrite this to add filters
+     * Overwrite this to add custom filters
+     * Also used for pagination
      *
      * @param  Builder  $builder
      * @param  string  $collectionName
      *
      * @return void
      */
-    protected function addCustomFilters(Builder $builder, string $collectionName)
+    protected function extendBuilderByFilters(Builder $builder, string $collectionName): void
     {
+        $this->processCurrentFilterElementsValues($builder, $collectionName);
     }
 
     /**
@@ -850,6 +864,7 @@ class BaseDataTable extends BaseComponent
      * @param  string  $collectionName
      *
      * @return Builder|null
+     * @throws Exception
      */
     public function getBuilderWithPagination(string $collectionName): ?Builder
     {
@@ -912,7 +927,7 @@ class BaseDataTable extends BaseComponent
      */
     public function getPaginationRowsPerPage(string $collectionName): int
     {
-        return (int) data_get($this->filters, $collectionName.'.rows', 6);
+        return (int) data_get($this->filters, $collectionName.'.rows_per_page', 6);
     }
 
     /**
@@ -1208,7 +1223,7 @@ class BaseDataTable extends BaseComponent
     }
 
     /**
-     * Hook/Event when updated $filters
+     * magic Hook/Event when updated $filters
      *
      * @param $value
      * @param $key
@@ -1217,16 +1232,99 @@ class BaseDataTable extends BaseComponent
      */
     public function updatedFilters($value, $key): void
     {
-        $keyParts = explode('.', $key);
-        if (($collectionName = $keyParts[0] ?? '') && ($k2 = $keyParts[1] ?? '')) {
+        foreach ($this->enabledCollectionNames as $collectionName => $collectionNameValue) {
+            $prefix = $collectionName.'.';
+            if (Str::startsWith($key, $prefix)) {
+                $name = Str::after($key, $prefix);
+                if (isset($this->filterElementConfig[$name])) {
+                    $softReset = data_get($this->filterElementConfig, $name.'.soft_reset', false);
+                    if ($softReset) {
+                        // reset page to 1
+                        data_set($this->filters, $collectionName.'.page', 1);
+                        $this->updateFiltersSession();
 
-            // If search or rows was updated, reset pagination to top
-            if (in_array($k2, $this->filterSoftResetActivators)) {
-                data_set($this->filters, $collectionName.'.page', 1);
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Iterate all configured filter elements
+     *
+     * @param  callable  $filterElement
+     *
+     * @return void
+     */
+    public function iterateFilterElements(callable $filterElement): void
+    {
+        foreach ($this->getOrderedFilterElementConfig() as $elKey => $elValue) {
+            $filterElement($elKey, $elValue);
+        }
+    }
+
+    /**
+     * Processing all configured filter elements and their option values (if any)
+     * by adjusting the collection builder.
+     *
+     * @param  Builder  $builder
+     * @param  string  $collectionName
+     *
+     * @return void
+     */
+    public function processCurrentFilterElementsValues(Builder $builder, string $collectionName): void
+    {
+        // all filter elements ...
+        $this->IterateFilterElements(function (string $filterElementKey, array $elementValueData) use ($builder, $collectionName) {
+
+            // key like "unselected_items.rows_per_page"
+            $filterKey = $collectionName.'.'.$filterElementKey;
+            // current value like 20
+            $filterValue = data_get($this->filters, $filterKey, '');
+
+            // If has options ...
+            if ($elementOptions = data_get($elementValueData, 'options')) {
+                foreach ($elementOptions as $optionKey => $optionValue) {
+
+                    // The needed option ...
+                    if ($optionKey !== $filterValue) {
+                        continue;
+                    }
+
+                    // option value is a config array ...
+                    if (is_array($optionValue)) {
+
+                        if ($optionBuilderCallback = data_get($optionValue, 'builder')) {
+
+                            // option config has a builder callback ...
+                            if (app('system_base')->isCallableClosure($optionBuilderCallback)) {
+
+                                $optionBuilderCallback($builder, $filterElementKey, $filterValue);
+                                //Log::debug("config option (own builder) \"$filterElementKey\", value \"$optionKey\":\"$filterValue\"");
+
+                            }
+                        }
+                    } else {
+                        // default builder callback for all options
+                        if ($defaultCallback = data_get($elementValueData, 'builder')) {
+                            //Log::debug("scalar option \"$filterElementKey\", value \"$optionKey\":\"$filterValue\"");
+                            $defaultCallback($builder, $filterElementKey, $filterValue);
+                        }
+                    }
+
+                }
+            } else {
+                // default builder callback for all values
+                if ($defaultCallback = data_get($elementValueData, 'builder')) {
+                    //Log::debug("scalar element \"$filterElementKey\", value \"$filterValue\"");
+                    $defaultCallback($builder, $filterElementKey, $filterValue);
+                }
             }
 
-            $this->updateFiltersSession();
-        }
+        });
+
+        //Log::debug("Builder SQL: ".$builder->toSql());
     }
 
 

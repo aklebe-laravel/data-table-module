@@ -4,7 +4,7 @@
 @endphp
 <div class="container-fluid text-center header">
     <div class="row">
-        @foreach($this->filterConfig as $_config)
+        @foreach($this->getOrderedFilterElementConfig() as $_config)
             <div class="{{ $_config['css_group'] }}">
                 @include($_config['view'])
             </div>
