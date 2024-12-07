@@ -4,6 +4,9 @@ namespace Modules\DataTable\app\Http\Livewire\DataTable\Base;
 
 use App\Models\User;
 use Exception;
+use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Arr;
@@ -26,32 +29,32 @@ class BaseDataTable extends BaseComponent
     /**
      * Minimum restrictions to allow this component.
      */
-    public const aclResources = [AclResource::RES_DEVELOPER, AclResource::RES_ADMIN];
+    public const array aclResources = [AclResource::RES_DEVELOPER, AclResource::RES_ADMIN];
 
     /**
      *
      */
-    const COLLECTION_NAME_DEFAULT = 'default';
+    const string COLLECTION_NAME_DEFAULT = 'default';
 
     /**
      *
      */
-    const COLLECTION_NAME_SELECTED_ITEMS = 'selected_items';
+    const string COLLECTION_NAME_SELECTED_ITEMS = 'selected_items';
 
     /**
      *
      */
-    const COLLECTION_NAME_UNSELECTED_ITEMS = 'unselected_items';
+    const string COLLECTION_NAME_UNSELECTED_ITEMS = 'unselected_items';
 
     /**
      *
      */
-    const RENDER_MODE_FRONTEND = 'FRONTEND';
+    const string RENDER_MODE_FRONTEND = 'FRONTEND';
 
     /**
      *
      */
-    const RENDER_MODE_BACKEND = 'BACKEND';
+    const string RENDER_MODE_BACKEND = 'BACKEND';
 
     /**
      * Relations loaded with getBaseBuilder()
@@ -172,13 +175,6 @@ class BaseDataTable extends BaseComponent
     public string $relatedLivewireForm = '';
     public string $relatedLivewireImportForm = '';
 
-    const declaredFilters = [
-        'page'          => 1,
-        'rows_per_page' => 20,
-        'search'        => '',
-        'sort'          => [],
-    ];
-
     /**
      * Can be overwritten and should if class names differ.
      *
@@ -210,17 +206,6 @@ class BaseDataTable extends BaseComponent
      * @var array|array[]
      */
     protected array $filterElementConfig = [];
-
-    /**
-     * Filter data root indexed by collection name
-     *
-     * @var array
-     */
-    public array $filterValueDefaults = [
-        self::COLLECTION_NAME_DEFAULT          => self::declaredFilters,
-        self::COLLECTION_NAME_SELECTED_ITEMS   => self::declaredFilters, // initialized in initMount() ...
-        self::COLLECTION_NAME_UNSELECTED_ITEMS => self::declaredFilters,
-    ];
 
     /**
      * Filter data root indexed by collection name
@@ -377,12 +362,6 @@ class BaseDataTable extends BaseComponent
                                     } else {
                                         $b->orWhere($columnName, 'like', $searchLike);
                                     }
-
-                                } else {
-                                    // Log::warning('Searching in relations not implemented yet.', [
-                                    //     $columnName,
-                                    //     __METHOD__
-                                    // ]);
                                 }
                             }
                         }
@@ -441,10 +420,31 @@ class BaseDataTable extends BaseComponent
             return true;
         }
 
-        $this->filters = $this->filterValueDefaults;
+        //$this->filters = $this->filterValueDefaults;
+        $this->setFilterDefaultValues();
+
         $this->initSort();
 
         return false;
+    }
+
+    /**
+     * @return void
+     */
+    protected function setFilterDefaultValues(): void
+    {
+        $this->filters = [
+            self::COLLECTION_NAME_DEFAULT          => [],
+            self::COLLECTION_NAME_SELECTED_ITEMS   => [],
+            self::COLLECTION_NAME_UNSELECTED_ITEMS => [],
+        ];
+
+        foreach ($this->filterElementConfig as $name => $config) {
+            $v = data_get($config, 'default');
+            $this->filters[self::COLLECTION_NAME_DEFAULT][$name] = $v;
+            $this->filters[self::COLLECTION_NAME_SELECTED_ITEMS][$name] = $v;
+            $this->filters[self::COLLECTION_NAME_UNSELECTED_ITEMS][$name] = $v;
+        }
     }
 
     /**
@@ -471,8 +471,10 @@ class BaseDataTable extends BaseComponent
      */
     public function isFilterDefault(string $collectionName, string $keyPath): bool
     {
-        return (data_get($this->filters, $collectionName.'.'.$keyPath) === data_get($this->filterValueDefaults,
-                $collectionName.'.'.$keyPath));
+        $filterKey = $collectionName.'.'.$keyPath;
+
+        // !important to use "==" instead of "===" here because scalar types can differ!
+        return (data_get($this->filters, $filterKey) == data_get($this->filterElementConfig, $keyPath.'.default'));
     }
 
     /**
@@ -545,7 +547,7 @@ class BaseDataTable extends BaseComponent
         /** @var UserService $userService */
         $userService = app(UserService::class);
 
-        return $userService->hasUserResource(Auth::user(), \Modules\Acl\app\Models\AclResource::RES_MANAGE_USERS);
+        return $userService->hasUserResource(Auth::user(), AclResource::RES_MANAGE_USERS);
     }
 
     /**
@@ -581,7 +583,7 @@ class BaseDataTable extends BaseComponent
     {
         //        foreach ($this->getColumns() as $column) {
         foreach ($this->getAllColumns() as $column) {
-            if (($c = Arr::get($column, 'name')) === $name) {
+            if ((Arr::get($column, 'name')) === $name) {
                 return $column;
             }
         }
@@ -805,16 +807,6 @@ class BaseDataTable extends BaseComponent
     }
 
     /**
-     * @param  string  $collectionName
-     * @param  Builder|Collection  $builder
-     *
-     * @return void
-     */
-    protected function addPaginationToCollectionOrBuilder(string $collectionName, Builder|Collection &$builder): void
-    {
-    }
-
-    /**
      * Add sorting to builder or collection.
      *
      * @param  string  $collectionName
@@ -1019,8 +1011,7 @@ class BaseDataTable extends BaseComponent
         if (($fix = $this->getFixCollection($collectionName)) !== null) {
             $this->collections[$collectionName] = $fix;
         } else {
-            $this->collections[$collectionName] = $this->getBuilderWithPagination($collectionName)
-                                                       ->get();
+            $this->collections[$collectionName] = $this->getBuilderWithPagination($collectionName)->get();
         }
 
         /**
@@ -1052,9 +1043,9 @@ class BaseDataTable extends BaseComponent
     }
 
     /**
-     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+     * @return Application|Factory|View
      */
-    public function render()
+    public function render(): Factory|View|Application
     {
         return view('data-table::livewire.js-dt.dt-auto');
     }
@@ -1202,6 +1193,7 @@ class BaseDataTable extends BaseComponent
         switch ($current) {
             case 'asc':
                 $current = 'desc';
+                break;
             case 'desc':
                 // keep 'desc' to reset by setSort()
                 break;
