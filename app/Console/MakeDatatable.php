@@ -6,6 +6,7 @@ use Exception;
 use Illuminate\Console\Command;
 use Modules\DataTable\app\Services\MakeDataTablesService;
 use Modules\SystemBase\app\Services\ModuleService;
+use Symfony\Component\Console\Command\Command as CommandResult;
 
 class MakeDatatable extends Command
 {
@@ -29,11 +30,11 @@ class MakeDatatable extends Command
      * @return int
      * @throws Exception
      */
-    public function handle()
+    public function handle(): int
     {
         if (!($dataTableName = $this->argument('table_name'))) {
             $this->error("Missing DataTable name!");
-            return Command::FAILURE;
+            return CommandResult::FAILURE;
         }
         $moduleName = $this->argument('module_name');
 
@@ -43,7 +44,7 @@ class MakeDatatable extends Command
         $this->info(sprintf("DataTable: %s::%s", $moduleName, $dataTableName));
 
         $makeDataTableService = app(MakeDataTablesService::class);
-        return $makeDataTableService->makeDataTable($moduleName, $dataTableName) ? Command::SUCCESS : Command::FAILURE;
+        return $makeDataTableService->makeDataTable($moduleName, $dataTableName) ? CommandResult::SUCCESS : CommandResult::FAILURE;
     }
 
 }

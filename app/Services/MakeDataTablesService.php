@@ -2,6 +2,7 @@
 
 namespace Modules\DataTable\app\Services;
 
+use Exception;
 use Modules\DeployEnv\app\Services\MakeModuleService;
 use Modules\SystemBase\app\Services\Base\BaseService;
 use Modules\SystemBase\app\Services\ModuleService;
@@ -12,7 +13,7 @@ class MakeDataTablesService extends BaseService
      * @param  string  $moduleName
      * @param  string  $dataTableName
      * @return bool
-     * @throws \Exception
+     * @throws Exception
      */
     public function makeDataTable(string $moduleName, string $dataTableName): bool
     {
