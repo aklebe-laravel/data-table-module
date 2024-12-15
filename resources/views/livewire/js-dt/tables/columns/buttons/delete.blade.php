@@ -5,7 +5,7 @@
      **/
 
     // path for messageBox.config
-    $jsMessageBoxDeleteItemPath = \Illuminate\Support\Str::snake($this->getModelName(), '-') . '.data-table.delete';
+    $jsMessageBoxDeleteItemPath = \Illuminate\Support\Str::snake($this->getEloquentModelName(), '-') . '.data-table.delete';
     if (!$this->editable || !$this->removable || !$this->canItemRemoved($item)) {
         return;
     }

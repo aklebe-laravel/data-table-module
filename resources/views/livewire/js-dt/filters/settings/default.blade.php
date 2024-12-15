@@ -23,7 +23,6 @@
                 <option value="">{{ __('Select ...') }}</option>
                 <option value="toggle">{{ __('Toggle Visible Items') }}</option>
                 <option value="export">{{ __('Export ...') }}</option>
-                <option value="import" wire:click="$dispatchTo('{{ $this->relatedLivewireImportForm }}', 'open-form', {id: 0})">{{ __('Import ...') }}</option>
                 <option value="print">{{ __('Print ...') }}</option>
             </select>
         </li>

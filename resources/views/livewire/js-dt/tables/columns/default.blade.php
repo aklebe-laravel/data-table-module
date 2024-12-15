@@ -1,11 +1,14 @@
 @php
     /**
-     * @var \Modules\DataTable\app\Http\Livewire\DataTable\Base\BaseDataTable $this
-     * @var Illuminate\Database\Eloquent\Model $item
+     * @var BaseDataTable $this
+     * @var Model $item
      * @var string $name
      * @var mixed $value
      * @var array $column
      **/
+
+    use Illuminate\Database\Eloquent\Model;
+    use Modules\DataTable\app\Http\Livewire\DataTable\Base\BaseDataTable;
 
     $origValue = $value;
     $value = $column['translation'] ? __($value) : $value;
@@ -13,7 +16,7 @@
         $value = Str::limit($value, $strLimit);
     }
 @endphp
-<div class="">
+<div class="" title="{{ $origValue }}">
     @if (data_get($column, 'options.has_open_link', false))
         {{--        @if ($this->renderMode == $this::RENDER_MODE_BACKEND)--}}
         @if($this->editable && $this->relatedLivewireForm)

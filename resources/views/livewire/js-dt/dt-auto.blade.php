@@ -1,6 +1,9 @@
 @php
-    /** @var \Modules\DataTable\app\Http\Livewire\DataTable\Base\BaseDataTable $this */
-    $dtAutoKey = 'dt-auto-'.$this->getModelName();
+    /** @var BaseDataTable $this */
+
+    use Modules\DataTable\app\Http\Livewire\DataTable\Base\BaseDataTable;
+
+    $dtAutoKey = 'dt-auto-'.$this->getEloquentModelName();
     $dtAutoCounter = app('system_base')->addUniqueCounter($dtAutoKey);
 @endphp
 <div class="data-table-2t-default {{ $dtAutoKey.'-'.$dtAutoCounter }}">
@@ -8,7 +11,7 @@
     @include('data-table::inc.messages')
 
     <div>
-        <h1>{{ data_get($this, 'title', 'Datatable ' . $this->getModelName()) }}</h1>
+        <h1>{{ data_get($this, 'title', 'Datatable ' . $this->getEloquentModelName()) }}</h1>
 
         {{-- This type of data-table should be enabled --}}
         @if (isset($this->enabledCollectionNames[$this::COLLECTION_NAME_SELECTED_ITEMS]))

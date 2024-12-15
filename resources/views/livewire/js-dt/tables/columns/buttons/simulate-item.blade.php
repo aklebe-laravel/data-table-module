@@ -1,13 +1,16 @@
 @php
     /**
-     * @var \Modules\DataTable\app\Http\Livewire\DataTable\Base\BaseDataTable $this
-     * @var \Illuminate\Database\Eloquent\Model $item
+     * @var BaseDataTable $this
+     * @var Model $item
      * @var string $name
      * @var mixed $value
      **/
 
-    $jsMessageBoxSimulateItemPath = \Illuminate\Support\Str::snake($this->getModelName(), '-') . '.data-table.simulate-item';
-    $jsMessageBoxLaunchItemPath = \Illuminate\Support\Str::snake($this->getModelName(), '-') . '.data-table.launch-item';
+    use Illuminate\Database\Eloquent\Model;
+    use Modules\DataTable\app\Http\Livewire\DataTable\Base\BaseDataTable;
+
+    $jsMessageBoxSimulateItemPath = \Illuminate\Support\Str::snake($this->getEloquentModelName(), '-') . '.data-table.simulate-item';
+    $jsMessageBoxLaunchItemPath = \Illuminate\Support\Str::snake($this->getEloquentModelName(), '-') . '.data-table.launch-item';
 
     $objName = $this->getName();
 

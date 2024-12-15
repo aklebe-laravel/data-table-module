@@ -20,6 +20,7 @@ use Modules\Acl\app\Models\AclResource;
 use Modules\Acl\app\Services\UserService;
 use Modules\SystemBase\app\Http\Livewire\BaseComponent;
 use Modules\SystemBase\app\Models\Base\TraitModelAddMeta;
+use Modules\SystemBase\app\Services\ModelService;
 
 /**
  *
@@ -124,6 +125,7 @@ class BaseDataTable extends BaseComponent
 
     /**
      * Determine whether command has buttons like "add new row" in header.
+     *
      * @var bool
      */
     public bool $canAddRow = true;
@@ -173,14 +175,13 @@ class BaseDataTable extends BaseComponent
      * @var string
      */
     public string $relatedLivewireForm = '';
-    public string $relatedLivewireImportForm = '';
 
     /**
      * Can be overwritten and should if class names differ.
      *
      * @var string
      */
-    public string $modelName = '';
+    public string $eloquentModelName = '';
 
     /**
      * Not presented names will not be rendered.
@@ -284,8 +285,6 @@ class BaseDataTable extends BaseComponent
     protected function initMount(): void
     {
         parent::initMount();
-
-        $this->getFiltersSession();
     }
 
     /**
@@ -296,10 +295,13 @@ class BaseDataTable extends BaseComponent
     protected function initBooted(): void
     {
         $this->initFilters();
+
+        $this->getFiltersSession();
     }
 
     /**
      * Overwrite to init your sort orders before session exists
+     *
      * @return void
      */
     protected function initSort(): void
@@ -308,6 +310,8 @@ class BaseDataTable extends BaseComponent
     }
 
     /**
+     * Should be overridden if more filters needed or existing filters not wanted!
+     *
      * @return void
      */
     protected function initFilters(): void
@@ -349,19 +353,9 @@ class BaseDataTable extends BaseComponent
                         foreach ($this->getAllColumns() as $column) {
                             if ($columnName = data_get($column, 'name')) {
                                 if (data_get($column, 'searchable', true)) {
-                                    // No matter it's visible or not!
 
-                                    $dotParts = explode('.', $columnName);
-                                    if (count($dotParts) > 1) {
-                                        if (count($dotParts) === 2) {
-                                            $b->orWhereHas($dotParts[0],
-                                                function (Builder $b2) use ($dotParts, $searchLike) {
-                                                    $b2->where($dotParts[1], 'like', $searchLike);
-                                                });
-                                        } // @todo: else more complex, resolve it later ...
-                                    } else {
-                                        $b->orWhere($columnName, 'like', $searchLike);
-                                    }
+                                    // perform things like "pivot.position>100"
+                                    app(ModelService::class)->resolveDotsForWhere($b, $columnName, $searchLike, 'like');
                                 }
                             }
                         }
@@ -381,7 +375,7 @@ class BaseDataTable extends BaseComponent
 
     /**
      * @param  string  $name
-     * @param  array  $data
+     * @param  array   $data
      *
      * @return void
      */
@@ -389,6 +383,18 @@ class BaseDataTable extends BaseComponent
     {
         $this->filterElementConfig[$name] = $data;
         $this->filterElementConfig[$name]['name'] = $name;
+    }
+
+    /**
+     * @param  string  $name
+     *
+     * @return void
+     */
+    protected function removeFilterElement(string $name): void
+    {
+        if (isset($this->filterElementConfig[$name])) {
+            unset($this->filterElementConfig[$name]);
+        }
     }
 
     /**
@@ -592,8 +598,8 @@ class BaseDataTable extends BaseComponent
     }
 
     /**
-     * @param  string  $columnName
-     * @param  string  $columnPropertyName
+     * @param  string      $columnName
+     * @param  string      $columnPropertyName
      * @param  mixed|null  $default
      *
      * @return mixed
@@ -675,8 +681,8 @@ class BaseDataTable extends BaseComponent
     }
 
     /**
-     * @param  array  $columnData
-     * @param  string  $key
+     * @param  array       $columnData
+     * @param  string      $key
      * @param  mixed|null  $default
      *
      * @return mixed
@@ -702,7 +708,7 @@ class BaseDataTable extends BaseComponent
      */
     protected function getCacheKey(string $prefix = '', string $suffix = ''): string
     {
-        return ($prefix ? ($prefix.'_') : '').__CLASS__.'_'.$this->getModelName().($suffix ? ('_'.$suffix) : '');
+        return ($prefix ? ($prefix.'_') : '').__CLASS__.'_'.$this->getEloquentModelName().($suffix ? ('_'.$suffix) : '');
     }
 
     /**
@@ -717,8 +723,8 @@ class BaseDataTable extends BaseComponent
         $ttl = config('system-base.cache.object.signature.ttl', $ttlDefault);
 
         return Cache::remember($this->getCacheKey(suffix: 'base_builder'), $ttl, function () {
-            if ((!$moduleClass = app('system_base')->findModuleClass($this->getModelName()))) {
-                throw new Exception(sprintf("Model not found %s", $this->getModelName()));
+            if ((!$moduleClass = app('system_base')->findModuleClass($this->getEloquentModelName()))) {
+                throw new Exception(sprintf("Model not found 1) %s 2) %s 3) %s", $this->getEloquentModelName(), $this->eloquentModelName, static::class));
             }
 
             return $moduleClass;
@@ -737,7 +743,7 @@ class BaseDataTable extends BaseComponent
     public function getBaseBuilder(string $collectionName): ?Builder
     {
         if ((!$moduleClass = $this->getModuleModelClass())) {
-            throw new Exception(sprintf("Model not found %s", $this->getModelName()));
+            throw new Exception(sprintf("Model not found %s - %s - %s", $this->getEloquentModelName(), $this->eloquentModelName, static::class));
         }
 
         /** @var Builder $builder */
@@ -749,13 +755,13 @@ class BaseDataTable extends BaseComponent
     /**
      * @return string
      */
-    public function getModelName(): string
+    public function getEloquentModelName(): string
     {
-        if (!$this->modelName) {
-            $this->modelName = app('system_base')->getSimpleClassName(static::class);
+        if (!$this->eloquentModelName) {
+            return app('system_base')->getSimpleClassName(static::class);
+        } else {
+            return app('system_base')->getSimpleClassName($this->eloquentModelName);
         }
-
-        return $this->modelName;
     }
 
     /**
@@ -809,7 +815,7 @@ class BaseDataTable extends BaseComponent
     /**
      * Add sorting to builder or collection.
      *
-     * @param  string  $collectionName
+     * @param  string              $collectionName
      * @param  Builder|Collection  $builder
      *
      * @return void
@@ -841,7 +847,7 @@ class BaseDataTable extends BaseComponent
      * Also used for pagination
      *
      * @param  Builder  $builder
-     * @param  string  $collectionName
+     * @param  string   $collectionName
      *
      * @return void
      */
@@ -882,7 +888,7 @@ class BaseDataTable extends BaseComponent
      * livewire event
      *
      * @param  string  $collectionName
-     * @param  int  $index
+     * @param  int     $index
      *
      * @return void
      */
@@ -1003,6 +1009,7 @@ class BaseDataTable extends BaseComponent
      * @param  string  $collectionName
      *
      * @return Collection|\Illuminate\Support\Collection|array
+     * @throws Exception
      */
     public function getCollection(string $collectionName): Collection|\Illuminate\Support\Collection|array //Collection|\Illuminate\Support\Collection|array
     {
@@ -1017,7 +1024,7 @@ class BaseDataTable extends BaseComponent
         /**
          * If we have an id in parentData, then we will update every row objects relatedPivotModelId.
          * This important to get the valid pivot data.
-         * For Example see: \Modules\KlaraDeployment\Models\DeploymentTask::deployment()
+         * For Example see: \Modules\KlaraDeployment\app\Models\DeploymentTask::deployment()
          */
         if ($collectionName === self::COLLECTION_NAME_SELECTED_ITEMS) {
             if ($parentId = data_get($this->parentData, 'id')) {
@@ -1128,7 +1135,7 @@ class BaseDataTable extends BaseComponent
     /**
      * @param  mixed  $livewireId
      * @param  mixed  $itemId
-     * @param  bool  $simulate
+     * @param  bool   $simulate
      *
      * @return bool
      */
@@ -1261,7 +1268,7 @@ class BaseDataTable extends BaseComponent
      * by adjusting the collection builder.
      *
      * @param  Builder  $builder
-     * @param  string  $collectionName
+     * @param  string   $collectionName
      *
      * @return void
      */
@@ -1342,7 +1349,7 @@ class BaseDataTable extends BaseComponent
      * so we get elements like ['x']['sort']['pivot.position'].
      *
      * @param  string  $subject
-     * @param  bool  $replaceBack
+     * @param  bool    $replaceBack
      * @param  string  $replaceTo
      *
      * @return string
