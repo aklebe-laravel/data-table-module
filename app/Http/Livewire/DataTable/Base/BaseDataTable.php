@@ -320,7 +320,7 @@ class BaseDataTable extends BaseComponent
 
         $this->addFilterElement('rows_per_page', [
             'label'      => 'Rows',
-            'default'    => 10,
+            'default'    => 30,
             'position'   => 1000,
             'soft_reset' => true,
             'css_group'  => 'col-12 col-md-3 text-start',
@@ -328,6 +328,7 @@ class BaseDataTable extends BaseComponent
             'options'    => [
                 10  => 10,
                 20  => 20,
+                30  => 30,
                 50  => 50,
                 100 => 100,
                 200 => 200,
