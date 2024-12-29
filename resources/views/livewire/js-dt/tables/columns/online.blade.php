@@ -1,13 +1,18 @@
 @php
+    use Illuminate\Database\Eloquent\Model;
+    use Illuminate\Support\Carbon;
+    use Modules\DataTable\app\Http\Livewire\DataTable\Base\BaseDataTable;
+
     /**
-     * @var \Modules\DataTable\app\Http\Livewire\DataTable\Base\BaseDataTable $this
-     * @var \Illuminate\Database\Eloquent\Model $item
+     * @var BaseDataTable $this
+     * @var Model $item
      * @var string $name
      * @var mixed $value
      **/
+
     if ($value !== null && !is_int($value) && !is_bool($value)) {
-        $date = \Illuminate\Support\Carbon::parse($value);
-        $now = \Illuminate\Support\Carbon::now();
+        $date = Carbon::parse($value);
+        $now = Carbon::now();
         $diff = $date->diffInMinutes($now);
         $value = ($diff < 2);
     }

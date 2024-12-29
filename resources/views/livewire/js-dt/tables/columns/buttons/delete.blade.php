@@ -1,6 +1,8 @@
 @php
+    use Modules\DataTable\app\Http\Livewire\DataTable\Base\BaseDataTable;
+
     /**
-     * @var \Modules\DataTable\app\Http\Livewire\DataTable\Base\BaseDataTable $this
+     * @var BaseDataTable $this
      * @var Illuminate\Database\Eloquent\Model $item
      **/
 
@@ -13,7 +15,7 @@
 {{--If confirmation exists, use the javascript confirmation part ...--}}
 @if(config('message-boxes.' . $jsMessageBoxDeleteItemPath))
     <button
-            x-on:click="messageBox.show('{{ $jsMessageBoxDeleteItemPath }}', {'deleteItem': {livewire_id: '{{ $this->getId() }}', name: '{{ $this->getName() }}', item_id: {{ data_get($item, 'id') }}}})"
+            x-on:click="messageBox.show('{{ $jsMessageBoxDeleteItemPath }}', {'deleteItem': {livewire_id: '{{ $this->getId() }}', name: '{{ $this->getName() }}', item_id: '{{ data_get($item, $this->columnNameId) }}'}})"
             class="btn btn-sm btn-outline-danger {{ data_get($this->mobileCssClasses, 'button', '') }}"
             title="{{ __('Delete') }}"
     >
@@ -31,7 +33,7 @@
 
     @if($_forceDeleteConfirmation)
         <button
-                x-on:click="messageBox.show('__default__.data-table.delete', {'delete-item': {livewire_id: '{{ $this->getId() }}', name: '{{ $this->getName() }}', item_id: {{ data_get($item, 'id') }}}})"
+                x-on:click="messageBox.show('__default__.data-table.delete', {'delete-item': {livewire_id: '{{ $this->getId() }}', name: '{{ $this->getName() }}', item_id: '{{ data_get($item, $this->columnNameId) }}'}})"
                 class="btn btn-sm btn-outline-danger {{ data_get($this->mobileCssClasses, 'button', '') }}"
                 title="{{ __('Delete') }}"
         >
@@ -39,7 +41,7 @@
         </button>
     @else
         <button
-                wire:click="deleteItem('{{ $this->id }}', '{{ data_get($item, 'id') }}')"
+                wire:click="deleteItem('{{ $this->id }}', '{{ data_get($item, $this->columnNameId) }}')"
                 class="btn btn-sm btn-danger {{ data_get($this->mobileCssClasses, 'button', '') }}"
                 title="{{ __('Delete') }}"
         >

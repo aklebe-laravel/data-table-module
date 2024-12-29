@@ -1,4 +1,7 @@
 @php
+    use Illuminate\Database\Eloquent\Model;
+    use Modules\DataTable\app\Http\Livewire\DataTable\Base\BaseDataTable;
+
     /**
      * @var BaseDataTable $this
      * @var Model $item
@@ -7,9 +10,6 @@
      * @var string $link make clickable link if exists
      * @var string $imageBoxCss image-box css
      **/
-
-    use Illuminate\Database\Eloquent\Model;
-    use Modules\DataTable\app\Http\Livewire\DataTable\Base\BaseDataTable;
 
     $link = $link ?? '';
     $imageBoxCss = $imageBoxCss ?? '';

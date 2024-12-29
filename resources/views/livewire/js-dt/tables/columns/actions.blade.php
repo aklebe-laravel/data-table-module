@@ -1,13 +1,17 @@
 @php
+    use Illuminate\Database\Eloquent\Model;
+    use Modules\DataTable\app\Http\Livewire\DataTable\Base\BaseDataTable;
+    use Modules\SystemBase\app\Services\LivewireService;
+
     /**
-     * @var \Modules\DataTable\app\Http\Livewire\DataTable\Base\BaseDataTable $this
-     * @var Illuminate\Database\Eloquent\Model $item
+     * @var BaseDataTable $this
+     * @var Model $item
      * @var string $name
      * @var mixed $value
      **/
 @endphp
 <div class="d-flex float-end"
-     wire:key="{{ \Modules\SystemBase\app\Services\LivewireService::getKey('action-'.data_get($item, 'id')) }}">
+     wire:key="{{ LivewireService::getKey('action-'.data_get($item, $this->columnNameId)) }}">
     @foreach($this->rowCommands as $commandView)
         @include($commandView)
     @endforeach

@@ -10,6 +10,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Collection as SupportCollection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
@@ -64,6 +65,11 @@ class BaseDataTable extends BaseComponent
      * @var array
      */
     protected array $objectRelations = [];
+
+    /**
+     * @var string
+     */
+    public string $columnNameId = 'id';
 
     /**
      * Decides behaviour: For example: edit products in form (default) or link to product view (in search).
@@ -1009,10 +1015,10 @@ class BaseDataTable extends BaseComponent
     /**
      * @param  string  $collectionName
      *
-     * @return Collection|\Illuminate\Support\Collection|array
+     * @return Collection|SupportCollection|array
      * @throws Exception
      */
-    public function getCollection(string $collectionName): Collection|\Illuminate\Support\Collection|array //Collection|\Illuminate\Support\Collection|array
+    public function getCollection(string $collectionName): Collection|SupportCollection|array //Collection|\Illuminate\Support\Collection|array
     {
         // @todo: unfortunately collection can't be cached this way cause of the custom filters
 
@@ -1043,9 +1049,9 @@ class BaseDataTable extends BaseComponent
     /**
      * @param  string  $collectionName
      *
-     * @return \Illuminate\Support\Collection|null
+     * @return SupportCollection|null
      */
-    public function getFixCollection(string $collectionName): ?\Illuminate\Support\Collection
+    public function getFixCollection(string $collectionName): ?SupportCollection
     {
         return null;
     }
@@ -1059,11 +1065,11 @@ class BaseDataTable extends BaseComponent
     }
 
     /**
-     * @param  int  $id
+     * @param  int|string  $id
      *
      * @return void
      */
-    public function toggleSelectedItem(int $id): void
+    public function toggleSelectedItem(int|string $id): void
     {
         if (!in_array($id, $this->selectedItems)) {
             $this->selectedItems[] = $id;
@@ -1085,11 +1091,11 @@ class BaseDataTable extends BaseComponent
     }
 
     /**
-     * @param  int  $id
+     * @param  int|string  $id
      *
      * @return bool
      */
-    public function hasSelectedItem(int $id): bool
+    public function hasSelectedItem(int|string $id): bool
     {
         return in_array($id, $this->selectedItems);
     }
