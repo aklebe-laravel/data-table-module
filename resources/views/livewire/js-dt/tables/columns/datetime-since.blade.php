@@ -1,12 +1,14 @@
 @php
+    use Illuminate\Database\Eloquent\Model;
+    use Illuminate\Support\Carbon;
+    use Modules\DataTable\app\Http\Livewire\DataTable\Base\BaseDataTable;
+
     /**
-     * @var \Modules\DataTable\app\Http\Livewire\DataTable\Base\BaseDataTable $this
-     * @var \Illuminate\Database\Eloquent\Model $item
+     * @var BaseDataTable $this
+     * @var Model $item
      * @var string $name
      * @var mixed $value
      **/
-
-    use Illuminate\Support\Carbon;
 
     if ($value) {
         $timeLocale = Carbon::parse($value)->locale('de');

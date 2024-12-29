@@ -2,67 +2,67 @@
 @import 'bootstrap/scss/bootstrap';
 
 .header-label {
-  cursor: pointer;
+    cursor: pointer;
 }
 
 .header-sort-icons {
-  display: inline-block;
-  position: relative;
-  top: -1rem;
-  width: 1rem;
-  height: 0;
-  font-size: 0.8em;
-  //margin-top: -0.2em;
-  //margin-left: 0.4em;
+    display: inline-block;
+    position: relative;
+    top: -1rem;
+    width: 1rem;
+    height: 0;
+    font-size: 0.8em;
+    //margin-top: -0.2em;
+    //margin-left: 0.4em;
 }
 
 .header-sort-icon {
-  display: inline-block;
-  position: absolute;
-  border: none;
-  background: none;
-  left: 0;
-  width: 0;
-  height: 0;
+    display: inline-block;
+    position: absolute;
+    border: none;
+    background: none;
+    left: 0;
+    width: 0;
+    height: 0;
 }
 
 .header-sort-icon-up {
-  @extend .header-sort-icon;
-  top: 0;
+    @extend .header-sort-icon;
+    top: 0;
 }
 
 .header-sort-icon-down {
-  @extend .header-sort-icon;
-  top: 0.9em;
+    @extend .header-sort-icon;
+    top: 0.9em;
 }
 
 .empty-list {
-  padding: 16px;
-  text-align: center;
+    padding: 16px;
+    text-align: center;
 }
 
 .data-table-default {
 
-  margin-bottom: 3em;
-  background-color: #f8f8f8;
+    margin-bottom: 3em;
+    background-color: #f8f8f8;
 
-  .table-responsive {
-  }
-
-  .header-tools {
-    padding: 12px 5px;
-    //background-color: #e0e0e0;
-  }
-
-  .footer-tools {
-    padding: 12px 5px;
-    //background-color: #e0e0e0;
-
-    .footer-actions {
-      text-align: right;
-      padding: 2px 12px;
+    .table-responsive {
     }
-  }
+
+    .header-tools {
+        padding: 12px 5px;
+        //background-color: #e0e0e0;
+    }
+
+    .footer-tools {
+        padding: 12px 5px;
+        //background-color: #e0e0e0;
+
+        .footer-actions {
+            text-align: right;
+            padding: 2px 12px;
+        }
+    }
 
 }
 
@@ -70,43 +70,43 @@
 // all data-tables in- and outside forms
 .table {
 
-  th {
-    color: #aaa;
-    font-size: 0.75rem;
-  }
-
-  td {
-    .image-content {
-      text-align: center;
-      width: 100%;
-      //margin: 4px;
-      //border: 1px solid #e0e0ff;
-      .image-box {
-        display: inline-block;
-        overflow: hidden;
-        //border: 1px solid #a0a0a0;
-        background-color: #e0e0e0;
-        width: 64px;
-        height: 64px;
-
-        img {
-          //width: 100%;
-          height: 100%;
-          max-height: 64px;
-          display: inline-block;
-        }
-      }
-
-      .image-box.small {
-        width: 48px;
-        height: 48px;
-
-        img {
-          max-height: 48px;
-        }
-      }
+    th {
+        color: #aaa;
+        font-size: 0.75rem;
     }
-  }
+
+    td {
+        .image-content {
+            text-align: center;
+            width: 100%;
+            //margin: 4px;
+            //border: 1px solid #e0e0ff;
+            .image-box {
+                display: inline-block;
+                overflow: hidden;
+                //border: 1px solid #a0a0a0;
+                background-color: #e0e0e0;
+                width: 64px;
+                height: 64px;
+
+                img {
+                    //width: 100%;
+                    height: 100%;
+                    max-height: 64px;
+                    display: inline-block;
+                }
+            }
+
+            .image-box.small {
+                width: 48px;
+                height: 48px;
+
+                img {
+                    max-height: 48px;
+                }
+            }
+        }
+    }
 }
 
 // ---------------------------------------------------------
@@ -114,48 +114,71 @@
 // ---------------------------------------------------------
 .data-table-2t-default {
 
-  .table-wrapper {
+    .table-wrapper {
 
-    .description {
-      background-color: #50500010;
-      padding: 20px;
-      margin-bottom: 8px;
-      color: #505050;
-      font-style: italic;
+        .description {
+            background-color: #50500010;
+            padding: 20px;
+            margin-bottom: 8px;
+            color: #505050;
+            font-style: italic;
+        }
+
+        .header {
+            @extend .rounded-top;
+            background-color: #00000010;
+            padding: 1rem .5rem;
+            margin-bottom: 3px;
+        }
+
+        .body {
+
+        }
+
+        .footer {
+            margin-bottom: 3rem;
+        }
     }
 
-    .header {
-      @extend .rounded-top;
-      background-color: #00000010;
-      padding: 1rem .5rem;
-      margin-bottom: 3px;
+}
+
+.dt-form-backdrop {
+    background-color: #f0f0f0;
+    z-index: $zindex-modal-backdrop;
+    width: 0;
+    height: 0;
+
+    .backdrop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: midnightblue;
+        opacity: .33;
     }
-
-    .body {
-
-    }
-
-    .footer {
-      margin-bottom: 3rem;
-    }
-  }
-
 }
 
 .dt-edit-form {
 
-  .data-table-2t-default {
-
-    .table-wrapper {
-
-      font-size: 0.8rem;
-
-      select, input, textarea, button {
-        font-size: 0.8rem;
-      }
-
+    .card-body {
+        .card-header {
+            background-color: #e0e0ff;
+        }
     }
-  }
+
+    .data-table-2t-default {
+
+        .table-wrapper {
+
+            font-size: 0.8rem;
+
+            select, input, textarea, button {
+                font-size: 0.8rem;
+            }
+
+        }
+    }
 }
 
 // ---------------------------------------------------------
@@ -163,50 +186,53 @@
 // ---------------------------------------------------------
 .dt-edit-form.readonly {
 
-  background-color: #f8f8f8;
+    background-color: #f8f8f8;
 
-  .card-body {
-    .card-header {
-      //background-color: #e8e8e8;
-    }
-
-    .card-text {
-
-      label {
-        color: #777;
-      }
-
-      .form-grid {
-
-        label {
-          background-color: #e8e8e8;
+    .card-body {
+        .card-header {
+            //background-color: #e8e8e8;
         }
-      }
+
+        .card-text {
+
+            label {
+                color: #777;
+            }
+
+            .form-grid {
+
+                label {
+                    background-color: #e8e8e8;
+                }
+            }
+        }
     }
-  }
 }
 
 // ---------------------------------------------------------
-// Have to set as extra clas, because possibility of form in form
+// Have to set as extra class, because possibility of form in form
 // ---------------------------------------------------------
 .dt-edit-form.editable {
-  background-color: #e8e8ff;
+    background-color: #e8e8ff;
 }
 
 // ---------------------------------------------------------
 // shorthand hide in mobile and show at specific media
 // ---------------------------------------------------------
 .hide-mobile-show-sm {
-  @extend .d-none, .d-sm-block;
+    @extend .d-none, .d-sm-block;
 }
+
 .hide-mobile-show-md {
-  @extend .d-none, .d-md-block;
+    @extend .d-none, .d-md-block;
 }
+
 .hide-mobile-show-lg {
-  @extend .d-none, .d-lg-block;
+    @extend .d-none, .d-lg-block;
 }
+
 .hide-mobile-show-xl {
-  @extend .d-none, .d-xl-block;
+    @extend .d-none, .d-xl-block;
 }
 
 
@@ -214,23 +240,26 @@
 // Especially for table tds
 // ---------------------------------------------------------
 .table {
-  .hide-mobile-show-sm {
-    @extend .d-none, .d-sm-table-cell;
-  }
-  .hide-mobile-show-md {
-    @extend .d-none, .d-md-table-cell;
-  }
-  .hide-mobile-show-lg {
-    @extend .d-none, .d-lg-table-cell;
-  }
-  .hide-mobile-show-xl {
-    @extend .d-none, .d-xl-table-cell;
-  }
+    .hide-mobile-show-sm {
+        @extend .d-none, .d-sm-table-cell;
+    }
+
+    .hide-mobile-show-md {
+        @extend .d-none, .d-md-table-cell;
+    }
+
+    .hide-mobile-show-lg {
+        @extend .d-none, .d-lg-table-cell;
+    }
+
+    .hide-mobile-show-xl {
+        @extend .d-none, .d-xl-table-cell;
+    }
 }
 
 @include media-breakpoint-down(md) {
-  .btn-sm {
-    border-width: 0 !important;
-  }
+    .btn-sm {
+        border-width: 0 !important;
+    }
 }
 

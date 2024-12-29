@@ -5,6 +5,7 @@
      * @var string $name
      * @var mixed $value
      **/
+
     use Illuminate\Database\Eloquent\Model;
     use Modules\DataTable\app\Http\Livewire\DataTable\Base\BaseDataTable;
 @endphp

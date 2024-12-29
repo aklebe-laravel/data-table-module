@@ -1,4 +1,7 @@
 @php
+    use Illuminate\Database\Eloquent\Model;
+    use Modules\DataTable\app\Http\Livewire\DataTable\Base\BaseDataTable;
+
     /**
      * @var BaseDataTable $this
      * @var Model $item
@@ -6,9 +9,6 @@
      * @var mixed $value
      * @var array $column
      **/
-
-    use Illuminate\Database\Eloquent\Model;
-    use Modules\DataTable\app\Http\Livewire\DataTable\Base\BaseDataTable;
 
     $origValue = $value;
     $value = $column['translation'] ? __($value) : $value;
@@ -22,16 +22,13 @@
         @if($this->editable && $this->relatedLivewireForm)
             <button
                     class="btn-link link-primary text-start"
-                    wire:click="$dispatchTo('{{ $this->relatedLivewireForm }}', 'open-form', {id: {{ data_get($item, 'id') }} })"
+                    wire:click="$dispatchTo('{{ $this->relatedLivewireForm }}', 'open-form', {id: '{{ data_get($item, $this->columnNameId) }}' })"
             >
                 @include("data-table::livewire.js-dt.tables.columns.value-with-info")
             </button>
         @else
             {{ $value }}
         @endif
-        {{--        @else--}}
-        {{--            <a href="{{ route('product', $item->web_uri) }}" target="_blank">{{ $value }}</a>--}}
-        {{--        @endif--}}
     @else
         {{ $value }}
     @endif

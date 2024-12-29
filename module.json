@@ -1,7 +1,7 @@
 {
     "name": "DataTable",
     "alias": "data-table",
-    "description": "",
+    "description": "Provides frontend data tables for custom objects or eloquent models and their relations.",
     "keywords": [],
     "priority": 1200,
     "providers": [
