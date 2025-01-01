@@ -498,13 +498,8 @@ class BaseDataTable extends BaseComponent
      */
     public function getUserId(): int|string|null
     {
-        if (($parentModelId = data_get($this->parentData, 'id', ''))
-            && ($parentModelName = data_get($this->parentData,
-                'model_class', ''))
-        ) {
-            if ($parentModel = $parentModelName::with([])
-                                               ->find($parentModelId)
-            ) {
+        if (($parentModelId = data_get($this->parentData, 'id', '')) && ($parentModelName = data_get($this->parentData, 'model_class', ''))) {
+            if ($parentModel = $parentModelName::with([])->find($parentModelId)) {
                 if ($parentModel->user_id ?? null) {
                     return $parentModel->user_id;
                 }
@@ -1030,7 +1025,7 @@ class BaseDataTable extends BaseComponent
 
         /**
          * If we have an id in parentData, then we will update every row objects relatedPivotModelId.
-         * This important to get the valid pivot data.
+         * This is important to get the valid pivot data.
          * For Example see: \Modules\KlaraDeployment\app\Models\DeploymentTask::deployment()
          */
         if ($collectionName === self::COLLECTION_NAME_SELECTED_ITEMS) {
