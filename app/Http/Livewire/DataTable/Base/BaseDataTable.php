@@ -154,6 +154,7 @@ class BaseDataTable extends BaseComponent
         'duplicate' => 'data-table::livewire.js-dt.tables.columns.buttons.duplicate',
         'edit'      => 'data-table::livewire.js-dt.tables.columns.buttons.edit',
         'delete'    => 'data-table::livewire.js-dt.tables.columns.buttons.delete',
+        //'test'    => 'data-table::livewire.js-dt.tables.columns.buttons.test',
     ];
 
     /**
@@ -300,6 +301,8 @@ class BaseDataTable extends BaseComponent
      */
     protected function initBooted(): void
     {
+        parent::initBooted();
+
         $this->initFilters();
 
         $this->getFiltersSession();

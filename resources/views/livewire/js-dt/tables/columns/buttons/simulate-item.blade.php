@@ -17,10 +17,18 @@
     if ($this->renderMode !== $this::RENDER_MODE_BACKEND) {
         return;
     }
+
+    $messageBoxParams1 = [
+        'simulate-item' => [
+            'livewireId' => $this->getId(),
+            'name' => $objName,
+            'itemId' => data_get($item, $this->columnNameId),
+        ],
+    ];
 @endphp
 <button
         class="btn btn-sm btn-outline-success mr-2 {{ data_get($this->mobileCssClasses, 'button', '') }}"
-        x-on:click="messageBox.show('{{ $jsMessageBoxSimulateItemPath }}', {'simulate-item': {livewire_id: '{{ $this->getId() }}', name: '{{ $objName }}', item_id: '{{ data_get($item, $this->columnNameId)}}'}})"
+        x-on:click="messageBox.show('{{ $jsMessageBoxSimulateItemPath }}', {{ json_encode($messageBoxParams1) }} )"
         title="{{ __('Simulate Item') }}"
 >
     <span class="bi bi-play-fill"></span>

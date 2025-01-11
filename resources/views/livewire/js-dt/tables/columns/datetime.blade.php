@@ -22,8 +22,5 @@
         </div>
     @else
         -
-        {{--        <button class="btn btn-outline-secondary disabled">--}}
-        {{--            <span class="bi bi-infinity"></span>--}}
-        {{--        </button>--}}
     @endif
 </div>
