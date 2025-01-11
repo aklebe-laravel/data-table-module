@@ -18,7 +18,6 @@
 @endphp
 <div class="" title="{{ $origValue }}">
     @if (data_get($column, 'options.has_open_link', false))
-        {{--        @if ($this->renderMode == $this::RENDER_MODE_BACKEND)--}}
         @if($this->editable && $this->relatedLivewireForm)
             <button
                     class="btn-link link-primary text-start"

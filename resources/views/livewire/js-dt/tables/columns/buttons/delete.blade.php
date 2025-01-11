@@ -1,9 +1,10 @@
 @php
+    use Illuminate\Database\Eloquent\Model;
     use Modules\DataTable\app\Http\Livewire\DataTable\Base\BaseDataTable;
 
     /**
      * @var BaseDataTable $this
-     * @var Illuminate\Database\Eloquent\Model $item
+     * @var Model $item
      **/
 
     // path for messageBox.config
@@ -11,11 +12,27 @@
     if (!$this->editable || !$this->removable || !$this->canItemRemoved($item)) {
         return;
     }
+
+    $messageBoxParamsDelete = [
+        'deleteItem' => [
+            'livewireId' => $this->getId(),
+            'name' => $this->getName(),
+            'itemId' => data_get($item, $this->columnNameId),
+        ],
+    ];
+
+    $messageBoxParamsDelete2 = [
+        'delete-item' => [
+            'livewireId' => $this->getId(),
+            'name' => $this->getName(),
+            'itemId' => data_get($item, $this->columnNameId),
+        ],
+    ];
 @endphp
 {{--If confirmation exists, use the javascript confirmation part ...--}}
 @if(config('message-boxes.' . $jsMessageBoxDeleteItemPath))
     <button
-            x-on:click="messageBox.show('{{ $jsMessageBoxDeleteItemPath }}', {'deleteItem': {livewire_id: '{{ $this->getId() }}', name: '{{ $this->getName() }}', item_id: '{{ data_get($item, $this->columnNameId) }}'}})"
+            x-on:click="messageBox.show('{{ $jsMessageBoxDeleteItemPath }}', {{ json_encode($messageBoxParamsDelete) }} )"
             class="btn btn-sm btn-outline-danger {{ data_get($this->mobileCssClasses, 'button', '') }}"
             title="{{ __('Delete') }}"
     >
@@ -33,7 +50,7 @@
 
     @if($_forceDeleteConfirmation)
         <button
-                x-on:click="messageBox.show('__default__.data-table.delete', {'delete-item': {livewire_id: '{{ $this->getId() }}', name: '{{ $this->getName() }}', item_id: '{{ data_get($item, $this->columnNameId) }}'}})"
+                x-on:click="messageBox.show('__default__.data-table.delete', {{ json_encode($messageBoxParamsDelete2) }} )"
                 class="btn btn-sm btn-outline-danger {{ data_get($this->mobileCssClasses, 'button', '') }}"
                 title="{{ __('Delete') }}"
         >

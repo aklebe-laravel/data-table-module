@@ -13,7 +13,6 @@
     $_info2 = ($item instanceof Model) ? $item->toArray() : $item;
 @endphp
 <div class="text-nowrap">
-    {{--    {{ dump($item) }}--}}
     <div><strong>{{ $name }}</strong></div>
     <pre>{{ print_r($_info1, true) }}</pre>
     <div><strong>{{ gettype($item) }}</strong></div>

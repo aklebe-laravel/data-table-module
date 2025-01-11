@@ -1,4 +1,5 @@
 @php
+    use App\Models\User;
     use Illuminate\Database\Eloquent\Model;
     use Modules\DataTable\app\Http\Livewire\DataTable\Base\BaseDataTable;
 
@@ -17,10 +18,10 @@
     }
 
     // try use shared id for urls if possible
-    if ($value instanceof \App\Models\User) {
+    if ($value instanceof User) {
         $user = $value;
     } else {
-        if ($item instanceof \App\Models\User) {
+        if ($item instanceof User) {
             $user = $item;
         } else {
             if ($value) {
