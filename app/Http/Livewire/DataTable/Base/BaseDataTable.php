@@ -112,7 +112,7 @@ class BaseDataTable extends BaseComponent
      *
      * @var bool
      */
-    public bool $useCollectionUserFilter = true;
+    public bool $filterByParentOwner = true;
 
     /**
      * Enable/disable delete actions.
@@ -1114,7 +1114,7 @@ class BaseDataTable extends BaseComponent
     {
         if ($form = $this->getComponentFormName()) {
             $this->dispatch('close-form')
-                 ->to($form);
+                ->to($form);
         }
     }
 
@@ -1133,8 +1133,8 @@ class BaseDataTable extends BaseComponent
         }
 
         return !!$this->getBaseBuilder(self::COLLECTION_NAME_DEFAULT)
-                      ->whereKey($itemId)
-                      ->delete();
+            ->whereKey($itemId)
+            ->delete();
     }
 
     /**
