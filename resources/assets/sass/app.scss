@@ -181,6 +181,39 @@
     }
 }
 
+
+// ---------------------------------------------------------
+// Switch 3 states
+// ---------------------------------------------------------
+.switch3-container h5 {
+    margin-bottom: .7rem;
+}
+
+.switch3 {
+    display: inline-block;
+    padding: 1px;
+    border: $border-color;
+    white-space: nowrap;
+}
+
+.switch3 input {
+    display: none;
+}
+
+.switch3 label {
+    padding: .4rem;
+    background-color: $secondary-bg-subtle;
+    cursor: pointer;
+}
+
+.switch3 label:hover {
+    background-color: $color-contrast-light;
+}
+
+.switch3 input[type="radio"]:not(.unused):checked + label {
+    background-color: $warning-bg-subtle;
+}
+
 // ---------------------------------------------------------
 // Have to set as extra clas, because possibility of form in form
 // ---------------------------------------------------------
