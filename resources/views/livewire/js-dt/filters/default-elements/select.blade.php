@@ -1,5 +1,7 @@
 @php
-    /** @var \Modules\DataTable\app\Http\Livewire\DataTable\Base\BaseDataTable $this */
+    use Modules\DataTable\app\Http\Livewire\DataTable\Base\BaseDataTable;
+
+    /** @var BaseDataTable $this */
     /** @var string $collectionName */
     /** @var array $_config config for this data */
 @endphp

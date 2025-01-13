@@ -1281,7 +1281,6 @@ class BaseDataTable extends BaseComponent
     {
         // all filter elements ...
         $this->IterateFilterElements(function (string $filterElementKey, array $elementValueData) use ($builder, $collectionName) {
-
             // key like "unselected_items.rows_per_page"
             $filterKey = $collectionName.'.'.$filterElementKey;
             // current value like 20
@@ -1291,7 +1290,7 @@ class BaseDataTable extends BaseComponent
             if ($elementOptions = data_get($elementValueData, 'options')) {
                 foreach ($elementOptions as $optionKey => $optionValue) {
 
-                    // The needed option ...
+                    // @todo: need optional type weak conditions like  "!=" ?
                     if ($optionKey !== $filterValue) {
                         continue;
                     }
