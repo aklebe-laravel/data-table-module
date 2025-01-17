@@ -1,14 +1,22 @@
 {{-- This table will be included by several special views --}}
 @php
-    /** @var \Modules\DataTable\app\Http\Livewire\DataTable\Base\BaseDataTable $this */
+    use Illuminate\Database\Eloquent\Collection;
+    use Modules\DataTable\app\Http\Livewire\DataTable\Base\BaseDataTable;
+
+    /** @var BaseDataTable $this */
+    /** @var string $description */
+    /** @var string $descriptionView */
     /** @var string $collectionName SHOULD come from outside */
-    /** @var Illuminate\Database\Eloquent\Collection $collection SHOULD come from outside */
+    /** @var Collection $collection SHOULD come from outside */
     $collectionName = $collectionName ?? $this::COLLECTION_NAME_DEFAULT;
     $collection = $collection ?? $this->getCollection($collectionName);
     $allColumns = $this->getAllColumns();
     $visibleColumnCount = 0;
+    $xSortTag = '';
+    if ($this->hasXSort) {
+        $xSortTag = 'x-sort="Livewire.dispatchTo(\''.$this->getName().'\',\'x-sort-row\', {\'livewireId\':\''.$this->getId().'\',\'item\':$item,\'position\':$position})"';
+    }
 @endphp
-
 <div class="table-wrapper">
 
     <!-- Loading Overlay -->
@@ -22,7 +30,7 @@
                 <div class="col-12 col-md">
                     @if ($description)
                         {{ __($description) }}
-                    @else@if ($descriptionView)
+                    @elseif ($descriptionView)
                         @include($descriptionView)
                     @endif
                 </div>
@@ -37,15 +45,15 @@
     <div class="body table-responsive">
         <table class="table table-striped table-hover {{ $css_table ?? '' }}">
             <thead>
-            <tr>
-                @foreach($allColumns as $column)
-                    @if($this->getColumnParam($column, 'visible', true))
-                        @php
-                            $visibleColumnCount++;
-                            $icon = $this->renderIcon($column);
-                        @endphp
-                        <th scope="col" class="{{ $column['css_all'] }} {{ $column['css_header'] }} text-nowrap"
-                            title="{{ $column['label'] }}">
+                <tr>
+                    @foreach($allColumns as $column)
+                        @if($this->getColumnParam($column, 'visible', true))
+                            @php
+                                $visibleColumnCount++;
+                                $icon = $this->renderIcon($column);
+                            @endphp
+                            <th scope="col" class="{{ $column['css_all'] }} {{ $column['css_header'] }} text-nowrap"
+                                title="{{ $column['label'] }}">
                             <span class="header-label"
                                   wire:click="$dispatchSelf('toggle-sort', {'column':'{{ $column['name'] }}', 'collectionName':'{{ $collectionName }}'})">
                                 {!! $icon !!}
@@ -53,35 +61,35 @@
                                     {{ Str::limit($column['label'], 5) }}
                                 </span>
                             </span>
-                            @if ($column['sortable'])
-                                <div class="header-sort-icons">
-                                    <button
-                                            class="header-sort-icon-up {{ $this->hasSort($column['name'], 'asc', $collectionName) ? 'text-danger' : 'text-secondary' }} "
-                                            wire:click="$dispatchSelf('set-sort', {'column':'{{ $column['name'] }}', 'direction':'asc', 'collectionName':'{{ $collectionName }}'})"
-                                    >
-                                        <span class="bi bi-caret-up-fill"></span>
-                                    </button>
-                                    <button
-                                            class="header-sort-icon-down {{ $this->hasSort($column['name'], 'desc', $collectionName) ? 'text-danger' : 'text-secondary' }} "
-                                            wire:click="$dispatchSelf('set-sort', {'column':'{{ $column['name'] }}', 'direction':'desc', 'collectionName':'{{ $collectionName }}'})"
-                                    >
-                                        <span class="bi bi-caret-down-fill"></span>
-                                    </button>
-                                </div>
-                            @endif
-                        </th>
-                    @endif
-                @endforeach
-            </tr>
+                                @if ($column['sortable'])
+                                    <div class="header-sort-icons">
+                                        <button
+                                                class="header-sort-icon-up {{ $this->hasSort($column['name'], 'asc', $collectionName) ? 'text-danger' : 'text-secondary' }} "
+                                                wire:click="$dispatchSelf('set-sort', {'column':'{{ $column['name'] }}', 'direction':'asc', 'collectionName':'{{ $collectionName }}'})"
+                                        >
+                                            <span class="bi bi-caret-up-fill"></span>
+                                        </button>
+                                        <button
+                                                class="header-sort-icon-down {{ $this->hasSort($column['name'], 'desc', $collectionName) ? 'text-danger' : 'text-secondary' }} "
+                                                wire:click="$dispatchSelf('set-sort', {'column':'{{ $column['name'] }}', 'direction':'desc', 'collectionName':'{{ $collectionName }}'})"
+                                        >
+                                            <span class="bi bi-caret-down-fill"></span>
+                                        </button>
+                                    </div>
+                                @endif
+                            </th>
+                        @endif
+                    @endforeach
+                </tr>
             </thead>
-            <tbody>
+            <tbody {!! $xSortTag !!}>
             @if ($collection->count())
                 @foreach($collection as $item)
                     @php
                         $_isItemValid = $this->isItemValid($item);
                         $_isItemWarn = $this->isItemWarn($item);
                     @endphp
-                    <tr class="">
+                    <tr @if($xSortTag) x-sort:item="{{ data_get($item, 'id') }}" @endif class="">
                         @foreach($allColumns as $column)
                             @if($this->getColumnParam($column, 'visible', true))
                                 @php

@@ -145,6 +145,13 @@ class BaseDataTable extends BaseComponent
     public bool $hasCommands = true;
 
     /**
+     * determine has x-sort functionality or not
+     *
+     * @var bool
+     */
+    public bool $hasXSort = false;
+
+    /**
      * Here is the definition of all possible buttons.
      * The row command views itself have to check to allow the button.
      *
@@ -1430,6 +1437,19 @@ class BaseDataTable extends BaseComponent
         }
 
         return '';
+    }
+
+    /**
+     * @param  string      $livewireId
+     * @param  string|int  $item
+     * @param  string|int  $position
+     *
+     * @return bool
+     */
+    #[On('x-sort-row')]
+    public function xSortRow(string $livewireId, string|int $item, string|int $position): bool
+    {
+        return ($livewireId === $this->getId());
     }
 
 }
