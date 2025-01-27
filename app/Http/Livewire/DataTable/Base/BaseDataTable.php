@@ -1303,8 +1303,8 @@ class BaseDataTable extends BaseComponent
             if ($elementOptions = data_get($elementValueData, 'options')) {
                 foreach ($elementOptions as $optionKey => $optionValue) {
 
-                    // @todo: need optional type weak conditions like  "!=" ?
-                    if ($optionKey !== $filterValue) {
+                    // need type weak conditions like "!=" to compare 42 and "42"
+                    if ($optionKey != $filterValue) {
                         continue;
                     }
 
