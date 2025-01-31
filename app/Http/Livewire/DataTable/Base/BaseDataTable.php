@@ -12,7 +12,6 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection as SupportCollection;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
@@ -21,6 +20,7 @@ use Modules\Acl\app\Models\AclResource;
 use Modules\Acl\app\Services\UserService;
 use Modules\SystemBase\app\Http\Livewire\BaseComponent;
 use Modules\SystemBase\app\Models\Base\TraitModelAddMeta;
+use Modules\SystemBase\app\Services\CacheService;
 use Modules\SystemBase\app\Services\ModelService;
 
 /**
@@ -670,7 +670,7 @@ class BaseDataTable extends BaseComponent
      * You can ensure the fields exists!
      *
      * @return array[]
-     * @todo: use standard Cache::remember()
+     * @todo: use standard CacheService::remember()
      * @todo: change source for getFixCollection()
      */
     public function getAllColumns(): array
@@ -736,17 +736,14 @@ class BaseDataTable extends BaseComponent
      */
     protected function getModuleModelClass(): string
     {
-        //        return Cache::driver('array')->...
-        $ttlDefault = config('system-base.cache.default_ttl', 1);
-        $ttl = config('system-base.cache.object.signature.ttl', $ttlDefault);
-
-        return Cache::remember($this->getCacheKey(suffix: 'base_builder'), $ttl, function () {
+        return app(CacheService::class)->rememberUseConfig($this->getCacheKey(suffix: 'base_builder'), 'system-base.cache.object.signature.ttl', function () {
             if ((!$moduleClass = app('system_base')->findModuleClass($this->getEloquentModelName()))) {
                 throw new Exception(sprintf("Model not found 1) %s 2) %s 3) %s", $this->getEloquentModelName(), $this->eloquentModelName, static::class));
             }
 
             return $moduleClass;
         });
+
     }
 
     /**
