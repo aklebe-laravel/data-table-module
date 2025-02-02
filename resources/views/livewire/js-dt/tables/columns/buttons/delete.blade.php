@@ -14,14 +14,6 @@
     }
 
     $messageBoxParamsDelete = [
-        'deleteItem' => [
-            'livewireId' => $this->getId(),
-            'name' => $this->getName(),
-            'itemId' => data_get($item, $this->columnNameId),
-        ],
-    ];
-
-    $messageBoxParamsDelete2 = [
         'delete-item' => [
             'livewireId' => $this->getId(),
             'name' => $this->getName(),
@@ -50,7 +42,7 @@
 
     @if($_forceDeleteConfirmation)
         <button
-                x-on:click="messageBox.show('__default__.data-table.delete', {{ json_encode($messageBoxParamsDelete2) }} )"
+                x-on:click="messageBox.show('__default__.data-table.delete', {{ json_encode($messageBoxParamsDelete) }} )"
                 class="btn btn-sm btn-outline-danger {{ data_get($this->mobileCssClasses, 'button', '') }}"
                 title="{{ __('Delete') }}"
         >
