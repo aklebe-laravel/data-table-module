@@ -17,7 +17,7 @@
         $xSortTag = 'x-sort="Livewire.dispatchTo(\''.$this->getName().'\',\'x-sort-row\', {\'livewireId\':\''.$this->getId().'\',\'item\':$item,\'position\':$position})"';
     }
 @endphp
-<div class="table-wrapper">
+<div class="table-wrapper border rounded p-1">
 
     <!-- Loading Overlay -->
     <div wire:loading.delay>
@@ -104,7 +104,7 @@
                                         $value = $name ? data_get($item, $name) : '';
                                     }
                                 @endphp
-                                <td class="{{ !$_isItemValid ? 'bg-danger-subtle' : ($_isItemWarn ? 'bg-warning-subtle' : '') }} {{ $column['css_all'] }} {{ $column['css_body'] }}">
+                                <td class="{{ !$_isItemValid ? 'bg-danger-subtle' : ($_isItemWarn ? 'filtered' : '') }} {{ $column['css_all'] }} {{ $column['css_body'] }}">
                                     @include($column['view'] ?: 'data-table::livewire.js-dt.tables.columns.default')
                                 </td>
                             @endif

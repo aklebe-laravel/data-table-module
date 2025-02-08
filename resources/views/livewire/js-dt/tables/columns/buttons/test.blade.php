@@ -12,7 +12,7 @@
     }
 @endphp
 <button
-        class="btn btn-sm btn-outline-dark bg-warning-subtle {{ data_get($this->mobileCssClasses, 'button', '') }}"
+        class="btn btn-sm btn-outline-dark filtered {{ data_get($this->mobileCssClasses, 'button', '') }}"
         wire:click="$dispatchSelf('module-action', {'action':'test-my-event','itemId':'{{ data_get($item, $this->columnNameId) }}'})"
         title="{{ __('Test') }}"
 >
