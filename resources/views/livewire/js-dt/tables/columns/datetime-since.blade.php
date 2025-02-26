@@ -11,7 +11,7 @@
      **/
 
     if ($value) {
-        $timeLocale = Carbon::parse($value)->locale('de');
+        $timeLocale = Carbon::parse($value);
     }
 @endphp
 <div class="text-muted">

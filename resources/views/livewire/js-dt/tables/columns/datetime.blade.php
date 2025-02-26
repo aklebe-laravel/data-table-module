@@ -10,7 +10,7 @@
      * @var mixed $value
      **/
 
-    $timeLocale = $value ? Carbon::parse($value)->locale('de') : null;
+    $timeLocale = $value ? Carbon::parse($value) : null;
 @endphp
 <div class="text-muted">
     @if ($timeLocale)
