@@ -10,7 +10,7 @@
      **/
 @endphp
 @if(is_iterable($value))
-    <span class="badge rounded-pill bg-white text-muted">
+    <span class="badge rounded-pill {{ (count($value)) ? 'bg-success-subtle text-success' : 'bg-secondary-subtle text-secondary' }}">
         {{ count($value) }}
     </span>
 @else

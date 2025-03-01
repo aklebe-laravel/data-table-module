@@ -7,6 +7,7 @@
      * @var Model $item
      **/
 
+    // relatedLivewireForm is needed for edit
     if (!$this->editable || !$this->relatedLivewireForm) {
         return;
     }
