@@ -20,11 +20,23 @@
     @if (data_get($column, 'options.has_open_link', false))
         @if($this->editable && $this->relatedLivewireForm)
             <button
-                    class="btn-link link-primary text-start"
-                    wire:click="$dispatchTo('{{ $this->relatedLivewireForm }}', 'open-form', {id: '{{ data_get($item, $this->columnNameId) }}' })"
+                class="btn-link link-primary text-start open-form-link"
+                wire:click="$dispatchTo('{{ $this->relatedLivewireForm }}', 'open-form', {id: '{{ data_get($item, $this->columnNameId) }}' })"
             >
                 @include("data-table::livewire.js-dt.tables.columns.value-with-info")
             </button>
+        @else
+            {{ $value }}
+        @endif
+    @elseif (data_get($column, 'options.has_frontend_link', false))
+        @if(method_exists($item, 'getFrontendLink'))
+            <a
+                class="btn-link link-primary text-start frontend-link"
+                href="{{ $item->getFrontendLink() }}"
+                dusk="link-{{ $name }}"
+            >
+                @include("data-table::livewire.js-dt.tables.columns.value-with-info")
+            </a>
         @else
             {{ $value }}
         @endif

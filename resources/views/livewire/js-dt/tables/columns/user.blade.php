@@ -32,7 +32,7 @@
 @endphp
 <div class="">
     @isset($user)
-        <a target="_blank" href="{{ route('user-profile', $user->shared_id) }}">
+        <a href="{{ $user->getFrontendLink() }}" class="frontend-link">
             @include("data-table::livewire.js-dt.tables.columns.image-small", [
                 'value' => $user->imageMaker ? $user->imageMaker->final_thumb_small_url : themes('images/generic-avatar.jpg'),
                 'title' => $user->name,

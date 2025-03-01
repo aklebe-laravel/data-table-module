@@ -104,7 +104,7 @@
                                         $value = $name ? data_get($item, $name) : '';
                                     }
                                 @endphp
-                                <td class="{{ !$_isItemValid ? 'bg-danger-subtle' : ($_isItemWarn ? 'filtered' : '') }} {{ $column['css_all'] }} {{ $column['css_body'] }}">
+                                <td class="{{ !$_isItemValid ? 'bg-danger-subtle' : ($_isItemWarn ? 'filtered' : '') }} {{ $column['css_all'] }} {{ $column['css_body'] }} dt-column-{{ $name }}">
                                     @include($column['view'] ?: 'data-table::livewire.js-dt.tables.columns.default')
                                 </td>
                             @endif

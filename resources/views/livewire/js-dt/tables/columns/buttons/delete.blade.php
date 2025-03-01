@@ -25,7 +25,7 @@
 @if(config('message-boxes.' . $jsMessageBoxDeleteItemPath))
     <button
             x-on:click="messageBox.show('{{ $jsMessageBoxDeleteItemPath }}', {{ json_encode($messageBoxParamsDelete) }} )"
-            class="btn btn-sm btn-outline-danger {{ data_get($this->mobileCssClasses, 'button', '') }}"
+            class="btn btn-sm btn-outline-danger btn-delete {{ data_get($this->mobileCssClasses, 'button', '') }}"
             title="{{ __('Delete') }}"
     >
         <span class="bi bi-trash"></span>
@@ -43,7 +43,7 @@
     @if($_forceDeleteConfirmation)
         <button
                 x-on:click="messageBox.show('__default__.data-table.delete', {{ json_encode($messageBoxParamsDelete) }} )"
-                class="btn btn-sm btn-outline-danger {{ data_get($this->mobileCssClasses, 'button', '') }}"
+                class="btn btn-sm btn-outline-danger btn-delete {{ data_get($this->mobileCssClasses, 'button', '') }}"
                 title="{{ __('Delete') }}"
         >
             <span class="bi bi-trash"></span>
@@ -51,7 +51,7 @@
     @else
         <button
                 wire:click="deleteItem('{{ $this->id }}', '{{ data_get($item, $this->columnNameId) }}')"
-                class="btn btn-sm btn-danger {{ data_get($this->mobileCssClasses, 'button', '') }}"
+                class="btn btn-sm btn-danger btn-delete {{ data_get($this->mobileCssClasses, 'button', '') }}"
                 title="{{ __('Delete') }}"
         >
             <span class="bi bi-trash"></span>

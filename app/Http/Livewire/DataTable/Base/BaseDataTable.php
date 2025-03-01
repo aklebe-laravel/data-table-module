@@ -272,8 +272,12 @@ class BaseDataTable extends BaseComponent
         'view'        => '',
         // without view only. If true, use __(...) for values
         'translation' => false,
-        // future used ...
-        'options'     => [],
+        // column specific ...
+        'options'     => [
+            //'has_open_link' => bool, // clickable link to edit form
+            //'has_frontend_link' => bool, // clickable link to frontend view (works only when has_open_link is false)
+            //'str_limit' => int, // max chars to display
+        ],
     ];
 
     /**
@@ -425,9 +429,7 @@ class BaseDataTable extends BaseComponent
      */
     protected function getOrderedFilterElementConfig(): array
     {
-        return collect($this->filterElementConfig)
-            ->sortBy('position')
-            ->toArray();
+        return collect($this->filterElementConfig)->sortBy('position')->toArray();
     }
 
     /**
@@ -543,9 +545,7 @@ class BaseDataTable extends BaseComponent
             return Auth::user();
         } else {
             // @todo: cache or component public property
-            return app(User::class)
-                ->with([])
-                ->find($id);
+            return app(User::class)->with([])->find($id);
         }
     }
 
@@ -651,6 +651,7 @@ class BaseDataTable extends BaseComponent
     public function getActionsColumn(): array
     {
         return [
+            'name'    => 'actions',
             'label'   => 'Actions',
             // 'visible' => fn() => $this->editable || $this->removable || $this->hasCommands,
             'visible' => function () {
@@ -814,8 +815,7 @@ class BaseDataTable extends BaseComponent
 
             /**
              * Add search filter
-             */
-            //$this->addSearchToCollectionOrBuilder($collectionName, $builder);
+             */ //$this->addSearchToCollectionOrBuilder($collectionName, $builder);
 
             // sorting / order by
             $this->addSortToCollectionOrBuilder($collectionName, $builder);
@@ -1123,8 +1123,7 @@ class BaseDataTable extends BaseComponent
     public function closeForm(): void
     {
         if ($form = $this->getComponentFormName()) {
-            $this->dispatch('close-form')
-                ->to($form);
+            $this->dispatch('close-form')->to($form);
         }
     }
 
@@ -1142,9 +1141,7 @@ class BaseDataTable extends BaseComponent
             return false;
         }
 
-        return !!$this->getBaseBuilder(self::COLLECTION_NAME_DEFAULT)
-            ->whereKey($itemId)
-            ->delete();
+        return !!$this->getBaseBuilder(self::COLLECTION_NAME_DEFAULT)->whereKey($itemId)->delete();
     }
 
     /**

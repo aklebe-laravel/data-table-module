@@ -12,7 +12,7 @@
     }
 @endphp
 <button
-        class="btn btn-sm btn-outline-primary {{ data_get($this->mobileCssClasses, 'button', '') }}"
+        class="btn btn-sm btn-outline-primary btn-edit {{ data_get($this->mobileCssClasses, 'button', '') }}"
         wire:click="$dispatchTo('{{ $this->relatedLivewireForm }}', 'open-form', {id: '{{ data_get($item, $this->columnNameId) }}' })"
         title="{{ __('Edit') }}"
 >

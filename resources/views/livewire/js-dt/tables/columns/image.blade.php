@@ -19,7 +19,7 @@
 <div class="text-center image-content">
     <div class="image-box {{ $imageBoxCss }}">
         @if($link)
-            <a href="{{ $link }}" target="_blank">
+            <a href="{{ $link }}">
                 <img src="{{ $value }}" alt="{{ $title ?? '' }}" title="{{ $title ?? '' }}"/>
             </a>
         @else
