@@ -29,7 +29,7 @@
             <div class="row">
                 <div class="col-12 col-md">
                     @if ($description)
-                        {{ __($description) }}
+                        {!! __($description) !!}
                     @elseif ($descriptionView)
                         @include($descriptionView)
                     @endif

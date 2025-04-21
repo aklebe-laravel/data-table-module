@@ -16,7 +16,7 @@
         @if($this->editable && $this->canAddRow && $this->relatedLivewireForm)
             <li>
                 <button class="dropdown-item button-new-entry"
-                        wire:click="$dispatchTo('{{ $this->relatedLivewireForm }}', 'open-form', {id: 0})">
+                        wire:click="$dispatchTo('{{ $this->relatedLivewireForm }}', 'open-form', {id: 0, forceReset: true})">
                     {{ __('New Entry') }}
                 </button>
             </li>
