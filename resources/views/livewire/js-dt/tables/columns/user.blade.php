@@ -1,7 +1,7 @@
 @php
     use App\Models\User;
     use Illuminate\Database\Eloquent\Model;
-    use Modules\DataTable\app\Http\Livewire\DataTable\Base\BaseDataTable;
+    use Modules\DataTable\app\Http\Livewire\DataTable\Base\BaseDataTable;use Modules\SystemBase\app\Services\ThemeService;
 
     /**
      * Used in several datatables using user id or user model itself
@@ -34,7 +34,7 @@
     @isset($user)
         <a href="{{ $user->getFrontendLink() }}" class="frontend-link">
             @include("data-table::livewire.js-dt.tables.columns.image-small", [
-                'value' => $user->imageMaker ? $user->imageMaker->final_thumb_small_url : themes('images/generic-avatar.jpg'),
+                'value' => $user->imageMaker ? $user->imageMaker->final_thumb_small_url : ThemeService::getAssetUrl('assets/images/generic-avatar.jpg'),
                 'title' => $user->name,
             ])
         </a>
