@@ -35,7 +35,7 @@
     @isset($user)
         <a href="{{ $user->getFrontendLink() }}" class="frontend-link">
             @include("data-table::livewire.js-dt.tables.columns.image-small", [
-                'value' => $user->imageMaker ? $user->imageMaker->final_thumb_small_url : theme_asset('images/generic-avatar.jpg'),
+                'value' => $user->imageMaker ? $user->imageMaker->final_thumb_small_url : theme_asset('images/generic_avatar.webp'),
                 'title' => $user->name,
             ])
         </a>
