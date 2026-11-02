@@ -58,6 +58,36 @@ Examples: `website-base::data-table.media-item-picker` (image picker of the Webs
 layouts, the standard rows with full header for the list layout, rows from `getFixCollection()`; it extends
 the admin table of the same model and inherits columns, form link and actions).
 
+## Header and toolbar
+
+The header shows the filter elements (rows per page, search, own filters with `addFilterElement()`) ordered by
+`position`. Elements that are no filter (buttons, a status chip, a nested Livewire component) are added the same
+way with `addHeaderElement()`, they just have no `builder`:
+
+```php
+class MyItems extends DefaultDataTable
+{
+    // all elements in one row instead of the two column grid (HEADER_VIEW_DEFAULT)
+    public string $headerView = self::HEADER_VIEW_TOOLBAR;
+
+    protected function initFilters(): void
+    {
+        parent::initFilters();
+
+        // search without the settings menu, growing
+        $this->setDefaultFilter('search.view', 'data-table::livewire.js-dt.filters.default-elements.text');
+        $this->setDefaultFilter('search.css_group', 'flex-1 min-w-48 max-w-md');
+
+        // own element on the right: the view gets $_config and $collectionName
+        $this->addHeaderElement('my_button', 'my-module::data-tables.my-button', 9000, 'ml-auto');
+    }
+}
+```
+
+- `css_group` is the css of the element's wrapper, `hidden` hides it (for example `rows_per_page` without pagination).
+- `$headerPagination = false` hides the pagination line below the elements (all entries on one page).
+- The element list is rebuilt on every request (`initBooted()`), so it can depend on the user or a layout.
+
 ## Console
 
 Create a data table class:

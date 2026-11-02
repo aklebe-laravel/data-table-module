@@ -223,10 +223,25 @@ class BaseDataTable extends BaseComponent
 
     /**
      * Leave empty to hide the header.
+     * HEADER_VIEW_TOOLBAR: all header elements in one row (search, buttons, own elements), see addHeaderElement().
      *
      * @var string
      */
-    public string $headerView = 'data-table::livewire.js-dt.tables.headers.default';
+    public string $headerView = self::HEADER_VIEW_DEFAULT;
+
+    /**
+     * Header views of this module.
+     */
+    const string HEADER_VIEW_DEFAULT = 'data-table::livewire.js-dt.tables.headers.default';
+    const string HEADER_VIEW_TOOLBAR = 'data-table::livewire.js-dt.tables.headers.toolbar';
+
+    /**
+     * Show the pagination and the number of entries below the header elements.
+     * Turn off if all entries are on one page anyway (like a card grid without pagination).
+     *
+     * @var bool
+     */
+    public bool $headerPagination = true;
 
     /**
      *
@@ -557,6 +572,32 @@ class BaseDataTable extends BaseComponent
     {
         $this->filterElementConfig[$name] = $data;
         $this->filterElementConfig[$name]['name'] = $name;
+    }
+
+    /**
+     * Adds an element to the header that is not a filter: a button, a status chip, a nested Livewire component.
+     * Same list as the filters (ordered by 'position'), just without 'builder' and 'collection_builder'.
+     *
+     * The view is included with $_config (this element) and $collectionName, like a filter element.
+     * 'css_group' is the css of the wrapper, in HEADER_VIEW_TOOLBAR for example 'ml-auto' (push to the right)
+     * or 'flex-1 max-w-md' (grow). 'hidden' hides the element.
+     *
+     * @param  string  $name
+     * @param  string  $view
+     * @param  int     $position  like the filters: rows_per_page 1000, search 2000
+     * @param  string  $cssGroup
+     * @param  array   $data      more config for the view
+     *
+     * @return void
+     */
+    protected function addHeaderElement(string $name, string $view, int $position, string $cssGroup = '', array $data = []): void
+    {
+        $this->addFilterElement($name, array_merge($data, [
+            'view'      => $view,
+            'position'  => $position,
+            'css_group' => $cssGroup,
+            'default'   => $data['default'] ?? null,
+        ]));
     }
 
     /**
