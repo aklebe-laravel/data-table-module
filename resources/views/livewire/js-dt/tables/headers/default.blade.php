@@ -14,7 +14,7 @@
     </div>
     <div class="w-full grid grid-cols-2 gap-4 text-sm">
         <div class="text-secondary-500 text-start">
-            @include('data-table::livewire.js-dt.filters.pagination')
+            @include('data-table::livewire.js-dt.filters.pagination', ['paginationPosition' => 'header'])
         </div>
         <div class="text-secondary-500 text-end">
             {{ sprintf(__("Entries found: %s"), $this->getPaginationMaxRows($collectionName)) }}

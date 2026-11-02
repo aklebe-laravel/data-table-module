@@ -3,5 +3,6 @@
     "ask_launch_item": "Willst du wirklich diesen Eintrag ausführen?",
     "ask_simulate_item": "Willst du wirklich den Ausführungsprozess dieses Eintrages simulieren?",
     "Simulate Item": "Eintrag simulieren",
+    "Sort by": "Sortieren nach",
     "Unable to reposition": "Die Zeile kann nicht neu angeordnet werden. Die Spalte ':name' muss als einzigste zum Sortieren eingestellt sein."
 }

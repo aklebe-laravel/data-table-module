@@ -3,6 +3,7 @@
 
     /** @var BaseDataTable $this */
     /** @var string $collectionName */
+    /** @var string $paginationPosition 'header' or 'footer': header and footer both show a pagination, keys must differ */
     $maxPage = $this->getPaginationMaxPage($collectionName);
     $currentPage = $this->getPaginationCurrentPage($collectionName);
     $rowsPerPage = $this->getPaginationRowsPerPage($collectionName);
@@ -14,5 +15,5 @@
             :currentPage="$currentPage"
             :itemsPerPage="$rowsPerPage"
             :pageLinkWire="$pageLinkWire"
-            wire:key="{{ $this->getStableKey('pagination') }}"/>
+            wire:key="{{ $this->getStableKey('pagination-'.$collectionName.'-'.($paginationPosition ?? 'default')) }}"/>
 @endif

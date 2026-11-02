@@ -3,5 +3,6 @@
     "ask_launch_item": "Do you really want do launch this item?",
     "ask_simulate_item": "Do you really want do simulate the launch process of this item?",
     "Simulate Item": "Simulate Launch",
+    "Sort by": "Sort by",
     "Unable to reposition": "Unable to reposition this row. The only only one column to sort must be the ':name'."
 }

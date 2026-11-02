@@ -8,7 +8,7 @@
     $collectionName = $this::COLLECTION_NAME_UNSELECTED_ITEMS;
 @endphp
 <div>
-    @include('data-table::livewire.js-dt.tables.default',[
+    @include($this->tableView, [
         //'css_table' => 'table-unselected-relations',
     ])
 </div>

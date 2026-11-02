@@ -14,7 +14,9 @@
     @include('data-table::inc.messages')
 
     <div>
-        <h1>{{ data_get($this, 'title', 'Datatable ' . $this->getEloquentModelName()) }}</h1>
+        @if ($this->title)
+            <h1>{{ $this->title }}</h1>
+        @endif
 
         {{-- This type of data-table should be enabled and selected items should be exist --}}
         @if ($hasSelectedCollection)
@@ -30,7 +32,7 @@
         {{-- At least, in case of no selecteables tables needed --}}
         @if (isset($this->enabledCollectionNames[$this::COLLECTION_NAME_DEFAULT]) && (!$hasUnselectedCollection))
             {{-- This is the standard table for non selected items --}}
-            @include('data-table::livewire.js-dt.tables.default')
+            @include($this->tableView)
         @endif
 
     </div>

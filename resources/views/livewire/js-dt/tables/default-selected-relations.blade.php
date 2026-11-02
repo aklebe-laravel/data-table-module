@@ -8,7 +8,7 @@
     $collectionName = $this::COLLECTION_NAME_SELECTED_ITEMS;
 @endphp
 <div>
-    @include('data-table::livewire.js-dt.tables.default',[
+    @include($this->tableView, [
         //'css_table' => 'table-selected-relations',
     ])
 </div>

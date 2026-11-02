@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
+use Livewire\Attributes\Locked;
 use Livewire\Attributes\On;
 use Modules\Acl\app\Models\AclResource;
 use Modules\Acl\app\Services\UserService;
@@ -58,6 +59,12 @@ class BaseDataTable extends BaseComponent
      *
      */
     const string RENDER_MODE_BACKEND = 'BACKEND';
+
+    /**
+     * Templates of a collection, see $tableView
+     */
+    const string TABLE_VIEW_ROWS = 'data-table::livewire.js-dt.tables.default';
+    const string TABLE_VIEW_CARDS = 'data-table::livewire.js-dt.tables.cards';
 
     /**
      * Relations loaded with getBaseBuilder()
@@ -245,6 +252,49 @@ class BaseDataTable extends BaseComponent
      * @var string
      */
     public string $footerActions = '';
+
+    /**
+     * Template of the collections: rows of a table (TABLE_VIEW_ROWS, default), cards in a grid (TABLE_VIEW_CARDS)
+     * or an own view. Also as livewire parameter: <livewire:my-module::data-table.xxx :table-view="..."/>
+     * Locked: set by the class or as parameter, never by the browser (it is included as view).
+     *
+     * @var string
+     */
+    #[Locked]
+    public string $tableView = self::TABLE_VIEW_ROWS;
+
+    /**
+     * Card of one item for TABLE_VIEW_CARDS. Gets the same variables as a table row ($item, $collectionName).
+     * The default card renders all visible columns with their column views.
+     *
+     * @var string
+     */
+    #[Locked]
+    public string $cardView = 'data-table::livewire.js-dt.tables.cards.card';
+
+    /**
+     * Grid of TABLE_VIEW_CARDS: columns and gap
+     *
+     * @var string
+     */
+    #[Locked]
+    public string $cardsGridCss = 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4';
+
+    /**
+     * Frame around header, cards and footer of TABLE_VIEW_CARDS (empty: no frame)
+     *
+     * @var string
+     */
+    #[Locked]
+    public string $cardsWrapperCss = 'mb-8 border-1 border-surface-300/60';
+
+    /**
+     * Area of the cards in TABLE_VIEW_CARDS
+     *
+     * @var string
+     */
+    #[Locked]
+    public string $cardsBodyCss = 'p-4';
 
     /**
      * Collections root indexed by collection name
@@ -840,6 +890,41 @@ class BaseDataTable extends BaseComponent
         }
 
         return $this->allColumnsCached;
+    }
+
+    /**
+     * Value of a column for an item: 'value' of the column (closures get the item) or the item property 'name'.
+     *
+     * @param  array  $column
+     * @param  mixed  $item
+     *
+     * @return mixed
+     */
+    public function getColumnValue(array $column, mixed $item): mixed
+    {
+        $name = data_get($column, 'name', '');
+        $value = data_get($column, 'value', '');
+        if (app('system_base')->isCallableClosure($value)) {
+            $value = $value($item);
+        }
+
+        if (!$value) {
+            $value = $name ? data_get($item, $name) : '';
+        }
+
+        return $value;
+    }
+
+    /**
+     * Visible and sortable columns, offered as sort buttons in TABLE_VIEW_CARDS (no table header there).
+     *
+     * @return array[]
+     */
+    public function getCardSortColumns(): array
+    {
+        return array_values(array_filter($this->getAllColumns(), function (array $column) {
+            return $column['name'] && $column['sortable'] && $this->getColumnParam($column, 'visible', true);
+        }));
     }
 
     /**
@@ -1497,6 +1582,41 @@ class BaseDataTable extends BaseComponent
                 break;
         }
         $this->setSort($column, $current, $collectionName);
+    }
+
+    /**
+     * Sort by this column only (cards): a new column starts ascending, the active one toggles its direction.
+     * Unlike toggleSort(), which adds columns to a multi column sort (table headers).
+     *
+     * @param  string  $column
+     * @param  string  $collectionName
+     *
+     * @return void
+     */
+    public function setSingleSort(string $column, string $collectionName): void
+    {
+        if (!$this->getColumnProperty($column, 'sortable', false)) {
+            return;
+        }
+
+        $key = $this->replaceDot($column);
+        $direction = (Arr::get($this->filters, $collectionName.'.sort.'.$key) === 'asc') ? 'desc' : 'asc';
+        Arr::set($this->filters, $collectionName.'.sort', [$key => $direction]);
+
+        $this->updateFiltersSession();
+    }
+
+    /**
+     * Current sort direction of a column ('asc', 'desc') or null.
+     *
+     * @param  string  $collectionName
+     * @param  string  $column
+     *
+     * @return string|null
+     */
+    public function getSortDirection(string $collectionName, string $column): ?string
+    {
+        return Arr::get($this->filters, $collectionName.'.sort.'.$this->replaceDot($column));
     }
 
     /**
